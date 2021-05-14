@@ -1,6 +1,8 @@
 using UnityEditor;
 using UnityEngine;
 
+// Adapted from https://docs.unity3d.com/Manual/class-Texture3D.html
+
 public class CreateTextureSphere : MonoBehaviour
 {
     [MenuItem("AssetGen/Volumes/Sphere/SphereFloat256")]
@@ -55,16 +57,12 @@ public class CreateTextureSphere : MonoBehaviour
             }                
         }
 
-        texture.SetPixels(generatedData);
-        
+        // only works for float32
         //texture.SetPixelData(generatedData, 0, 0);
-        //
-        // // Copy the color values to the texture
-        // texture.SetPixels(colors);
 
-        // Apply the changes to the texture and upload the updated texture to the GPU
+        texture.SetPixels(generatedData);
         texture.Apply();        
-
+        
         // Save the texture to your Unity Project
         AssetDatabase.CreateAsset(texture, $"Assets/Textures/TextureSphere_{format}_{size}x{size}x{size}.asset");
     }

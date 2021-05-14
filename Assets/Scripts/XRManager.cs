@@ -6,13 +6,12 @@ public class XRManager : MonoBehaviour
 {
     void Start()
     {
+        OVRManager.gpuLevel = 5;
         // Set 80 Hz refresh if it is supported (e.g. Quest2)
         TrySetFrequency(80.0f);
 
         // Most aggressive foveated rendering approach
         SetFoveatedRenderingLevel(OVRManager.FixedFoveatedRenderingLevel.HighTop);
-
-        //XRSettings.renderViewportScale = 0.1f;
     }
 
     private static bool TrySetFrequency(float desiredFrequency)
