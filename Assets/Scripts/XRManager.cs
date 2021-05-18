@@ -16,15 +16,22 @@ public class XRManager : MonoBehaviour
 
     private static bool TrySetFrequency(float desiredFrequency)
     {
+        if (OVRManager.display == null)
+        {
+            Debug.LogWarning($"No headset detected!");
+            return false;
+        }
+        
         foreach (var f in OVRManager.display.displayFrequenciesAvailable)
         {
             if (Mathf.Approximately(f, desiredFrequency))
             {
                 OVRPlugin.systemDisplayFrequency = f;
+                Debug.Log($"Setting headset frequency to {f} Hz");
                 return true;
             }
         }
-
+        Debug.LogWarning($"Unable to set headset frequency to {desiredFrequency} Hz");
         return false;
     }
 
