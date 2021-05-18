@@ -4,8 +4,9 @@ using UnityEngine;
 public class RotateY : MonoBehaviour
 {
     public float rate = 1.0f;
-    void Update()
+    
+    void LateUpdate()
     {
-        transform.Rotate(Vector3.up, (float)(2.0f*Math.PI * rate * Time.deltaTime));
+        transform.rotation = Quaternion.Euler(0, (float) (2.0f * Math.PI * rate * Time.time), 0); 
     }
 }
