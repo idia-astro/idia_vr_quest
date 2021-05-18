@@ -7,6 +7,7 @@ Shader "Unlit/VolumeShader"
         _DataMin("Data Min", float) = 0.0
         _DataMax("Data Max", float) = 1.0
         _Threshold("Scale Threshold", Range(0,1)) = 0.0
+        _Jitter("Temporal Jitter", Range(0,1)) = 0.0
         _Color("Color", Color) = (1, 1, 1, 1)
     }
     SubShader

@@ -23,7 +23,13 @@ float _DataMax;
 float _Threshold;
 float4 _Color;
 int _MaxSteps;
+float _Jitter;
 
+// Simple pseudo-random number generator from https://github.com/keijiro
+float nrand(float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+}
 
 VertexToFrag vert (VertexInput input)
 {
@@ -53,6 +59,11 @@ fixed4 frag(VertexToFrag input) : SV_Target
 
     const float stepSize = SQRT2 / _MaxSteps;
     float3 samplePosition = rayOrigin;
+
+    // Shift ray's starting point by a small temporal noise amount to reduce box artefacts
+    // Based on code from Ryan Brucks: https://shaderbits.com/blog/creating-volumetric-ray-marcher
+    const float3 randVector = nrand(input.vertex.xy + _Time.xy) * rayDirection * stepSize * _Jitter;
+    samplePosition += randVector;
 
     float x = _DataMin;
     // Perform the actual raymarching. Early-existing from this loop seems to slow things down on Quest2
