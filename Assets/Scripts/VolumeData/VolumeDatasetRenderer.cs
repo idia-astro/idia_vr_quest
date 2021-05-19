@@ -14,7 +14,7 @@ namespace VolumeData
         [Header("Rendering settings")] 
         [Range(16, 512)] public int defaultStepCount = 128;
         [Range(0, 1)] public float jitter = 1.0f;
-        public Color color = Color.white;
+        public ColorMapEnum colormap = ColorMapEnum.Turbo;
         
         [Header("Data settings")] 
         public float dataMin = 0;
@@ -36,8 +36,9 @@ namespace VolumeData
             public static readonly int DataMin = Shader.PropertyToID("_DataMin");
             public static readonly int DataMax = Shader.PropertyToID("_DataMax");
             public static readonly int Threshold = Shader.PropertyToID("_Threshold");
-            public static readonly int Jitter = Shader.PropertyToID("Jitter");
-            public static readonly int Color = Shader.PropertyToID("_Color");
+            public static readonly int Jitter = Shader.PropertyToID("_Jitter");
+            public static readonly int NumColorMaps = Shader.PropertyToID("_NumColorMaps");
+            public static readonly int ColorMapIndex = Shader.PropertyToID("_ColorMapIndex");
         }
         
         #endregion
@@ -52,6 +53,8 @@ namespace VolumeData
         {
             _materialInstance = Instantiate(rayMarchingMaterial);
             _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
+            _materialInstance.SetInt(MaterialID.NumColorMaps, ColorMapUtils.NumColorMaps);
+            
             // Limit step count based on data size
             var w = dataTexture.width;
             var h = dataTexture.height;
@@ -71,6 +74,7 @@ namespace VolumeData
 
             _targetGpuUsage = 0.9f;
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
+            Camera.main.depthTextureMode = DepthTextureMode.Depth;
         }
 
         void Update()
@@ -89,6 +93,11 @@ namespace VolumeData
             {
                 float prevStepCount = _currentStepCount;
                 float deltaStepCount = rateOfChange * _currentStepCount * (_targetGpuUsage - gpuUsage) / _targetGpuUsage;
+                // More aggressively decrease step count than increase
+                if (deltaStepCount < 0)
+                {
+                    deltaStepCount *= 2.0f;
+                }
                 _currentStepCount += deltaStepCount;
                 _currentStepCount = Mathf.Clamp(_currentStepCount, minimumStepCount, maximumStepCount);
                 
@@ -110,7 +119,7 @@ namespace VolumeData
             _materialInstance.SetFloat(MaterialID.DataMax, dataMax);
             _materialInstance.SetFloat(MaterialID.Threshold, threshold);
             _materialInstance.SetFloat(MaterialID.Jitter, jitter);
-            _materialInstance.SetColor(MaterialID.Color, color);
+            _materialInstance.SetInt(MaterialID.ColorMapIndex, colormap.GetHashCode());
         }
     }
 
