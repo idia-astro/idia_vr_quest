@@ -6,7 +6,7 @@ using UnityEngine.XR;
 namespace VolumeData
 {
     [RequireComponent(typeof(Renderer))]
-    public class VolumeDatasetRenderer : MonoBehaviour
+    public class VolumeDataRenderer : MonoBehaviour
     {
         public Texture3D dataTexture;
         public Material rayMarchingMaterial;
