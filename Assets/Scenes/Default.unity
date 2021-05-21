@@ -542,7 +542,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1401925984}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.976, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 331575536}
@@ -573,7 +573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04401bad1fc56324badf421ddc3e6504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataTexture: {fileID: 11700000, guid: a3f614062bfc9ce46ac96633ac1bb178, type: 2}
+  dataTexture: {fileID: 11700000, guid: b0e228102f3ba1b44acdba11c6638e78, type: 2}
   rayMarchingMaterial: {fileID: 2100000, guid: 25183d073bad071449cb2c91a83df9e1, type: 2}
   defaultStepCount: 128
   jitter: 1
