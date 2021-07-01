@@ -1,4 +1,5 @@
 using System;
+using Services;
 using TMPro;
 using UnityEngine;
 using UnityEngine.XR;
@@ -49,6 +50,8 @@ namespace VolumeData
         private float _currentStepCount;
         private TMP_Text _debugTextOverlay;
 
+        private BackendService _backendService;
+
         void Awake()
         {
             _materialInstance = Instantiate(rayMarchingMaterial);
@@ -62,9 +65,10 @@ namespace VolumeData
             float diag = Mathf.Sqrt(w * w + h * h + d * d);
             maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
             _renderer = GetComponent<Renderer>();
+            _backendService = FindObjectOfType<BackendService>();
         }
 
-        void Start()
+        async void Start()
         {
             var obj = GameObject.Find("DebugTextOverlay");
             _debugTextOverlay = obj?.GetComponent<TMP_Text>();
@@ -75,6 +79,8 @@ namespace VolumeData
             _targetGpuUsage = 0.9f;
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
+            var result = await _backendService.GetFileList("fits");
+            Debug.Log(result);
         }
 
         void Update()
