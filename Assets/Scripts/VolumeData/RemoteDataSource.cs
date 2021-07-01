@@ -4,15 +4,14 @@ using UnityEngine;
 
 namespace VolumeData
 {
-    public class MhdDataSource : IVolumeDataSource
+    public class RemoteDataSource : IVolumeDataSource
     {
         public bool IsValid { get; private set; }
-        public ComputeBuffer ScaledDataBuffer { get; }
-        public Vector3Int ScaledDataDims { get; }
+        public Texture3D ScaledDataTexture { get; }
         public Vector3Int ScaledDataDownsamplingFactors { get; }
         public int ScaledDataLimit { get; set; }
-        public ComputeBuffer FloatDataBuffer { get; }
-        public Vector3Int FloatDataDims { get; }
+        public Texture3D FloatDataTexture { get; }
+        
         public Vector3Int FloatDataDownsamplingFactors { get; }
         public int FloatDataLimit { get; set; }
         public Vector2 FloatDataBounds { get; }
@@ -21,8 +20,11 @@ namespace VolumeData
         public Vector3Int DataSourceDims { get; }
         public Vector3Int CropMin { get; }
         public Vector3Int CropMax { get; }
-
-        public MhdDataSource(string path)
+        
+        public Vector3Int ScaledDataDims => new Vector3Int(ScaledDataTexture?.width ?? 0, ScaledDataTexture?.height ?? 0, ScaledDataTexture?.depth ?? 0);
+        public Vector3Int FloatDataDims => new Vector3Int(FloatDataTexture?.width ?? 0, FloatDataTexture?.height ?? 0, FloatDataTexture?.depth ?? 0);
+        
+        public RemoteDataSource(string path)
         {
             IsValid = false;
             Progress = 0;
