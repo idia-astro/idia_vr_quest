@@ -12,24 +12,26 @@ namespace VolumeData
         public Texture3D dataTexture;
         public Material rayMarchingMaterial;
 
-        [Header("Rendering settings")] 
-        [Range(16, 512)] public int defaultStepCount = 128;
+        [Header("Rendering settings")] [Range(16, 512)]
+        public int defaultStepCount = 128;
+
         [Range(0, 1)] public float jitter = 1.0f;
         public ColorMapEnum colormap = ColorMapEnum.Turbo;
-        
-        [Header("Data settings")] 
-        public float dataMin = 0;
+
+        [Header("Data settings")] public float dataMin = 0;
         public float dataMax = 1;
         public float threshold = 0;
 
         [Header("Adaptive performance settings")]
         public bool useAdaptiveStepCount = true;
+
         [Range(16, 512)] public int minimumStepCount = 32;
         [Range(16, 512)] public int maximumStepCount = 512;
         public float rateOfChange = 0.05f;
         [Range(0, 1)] public float movingAverageAlpha = 0.1f;
 
         #region Material property IDs
+
         private struct MaterialID
         {
             public static readonly int MainTex = Shader.PropertyToID("_MainTex");
@@ -41,7 +43,7 @@ namespace VolumeData
             public static readonly int NumColorMaps = Shader.PropertyToID("_NumColorMaps");
             public static readonly int ColorMapIndex = Shader.PropertyToID("_ColorMapIndex");
         }
-        
+
         #endregion
 
         private Material _materialInstance;
@@ -57,7 +59,7 @@ namespace VolumeData
             _materialInstance = Instantiate(rayMarchingMaterial);
             _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
             _materialInstance.SetInt(MaterialID.NumColorMaps, ColorMapUtils.NumColorMaps);
-            
+
             // Limit step count based on data size
             var w = dataTexture.width;
             var h = dataTexture.height;
@@ -80,7 +82,18 @@ namespace VolumeData
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
             var result = await _backendService.GetFileList("fits");
-            Debug.Log(result);
+            foreach (var dir in result.subDirectories)
+            {
+                Debug.Log($"{dir.name}: {dir.numItems} items");
+            }
+
+            foreach (var file in result.files)
+            {
+                Debug.Log($"{file.name}: {Util.FormattingFunctions.GetPrettyFileSizeString(file.size)}");
+            }
+
+            var info = await _backendService.GetExtendedFileInfo("fits", "test.fits");
+            Debug.Log(info.fileType);
         }
 
         void Update()
@@ -89,6 +102,7 @@ namespace VolumeData
             {
                 UpdateStepSize();
             }
+
             UpdateMaterialParameters();
         }
 
@@ -104,9 +118,10 @@ namespace VolumeData
                 {
                     deltaStepCount *= 2.0f;
                 }
+
                 _currentStepCount += deltaStepCount;
                 _currentStepCount = Mathf.Clamp(_currentStepCount, minimumStepCount, maximumStepCount);
-                
+
                 if (_debugTextOverlay)
                 {
                     _debugTextOverlay.text = $"GPU={(gpuUsage * 100):0.0}%; stepCount: {Mathf.RoundToInt(prevStepCount)} -> {Mathf.RoundToInt(_currentStepCount)}";
@@ -128,5 +143,4 @@ namespace VolumeData
             _materialInstance.SetInt(MaterialID.ColorMapIndex, colormap.GetHashCode());
         }
     }
-
 }
