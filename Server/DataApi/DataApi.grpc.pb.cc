@@ -23,7 +23,7 @@ namespace DataApi {
 
 static const char* FileBrowser_method_names[] = {
   "/DataApi.FileBrowser/GetFileList",
-  "/DataApi.FileBrowser/GetFileInfo",
+  "/DataApi.FileBrowser/GetImageInfo",
 };
 
 std::unique_ptr< FileBrowser::Stub> FileBrowser::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -34,7 +34,7 @@ std::unique_ptr< FileBrowser::Stub> FileBrowser::NewStub(const std::shared_ptr< 
 
 FileBrowser::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
   : channel_(channel), rpcmethod_GetFileList_(FileBrowser_method_names[0], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_GetFileInfo_(FileBrowser_method_names[1], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetImageInfo_(FileBrowser_method_names[1], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status FileBrowser::Stub::GetFileList(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::DataApi::FileList* response) {
@@ -60,25 +60,25 @@ void FileBrowser::Stub::experimental_async::GetFileList(::grpc::ClientContext* c
   return result;
 }
 
-::grpc::Status FileBrowser::Stub::GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) {
-  return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_GetFileInfo_, context, request, response);
+::grpc::Status FileBrowser::Stub::GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) {
+  return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_GetImageInfo_, context, request, response);
 }
 
-void FileBrowser::Stub::experimental_async::GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_GetFileInfo_, context, request, response, std::move(f));
+void FileBrowser::Stub::experimental_async::GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_GetImageInfo_, context, request, response, std::move(f));
 }
 
-void FileBrowser::Stub::experimental_async::GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create(stub_->channel_.get(), stub_->rpcmethod_GetFileInfo_, context, request, response, reactor);
+void FileBrowser::Stub::experimental_async::GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create(stub_->channel_.get(), stub_->rpcmethod_GetImageInfo_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* FileBrowser::Stub::PrepareAsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::DataApi::ImageInfo>::Create(channel_.get(), cq, rpcmethod_GetFileInfo_, context, request, false);
+::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* FileBrowser::Stub::PrepareAsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::DataApi::ImageInfo>::Create(channel_.get(), cq, rpcmethod_GetImageInfo_, context, request, false);
 }
 
-::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* FileBrowser::Stub::AsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* FileBrowser::Stub::AsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
-    this->PrepareAsyncGetFileInfoRaw(context, request, cq);
+    this->PrepareAsyncGetImageInfoRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -102,7 +102,7 @@ FileBrowser::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::DataApi::ImageInfoRequest* req,
              ::DataApi::ImageInfo* resp) {
-               return service->GetFileInfo(ctx, req, resp);
+               return service->GetImageInfo(ctx, req, resp);
              }, this)));
 }
 
@@ -116,7 +116,7 @@ FileBrowser::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status FileBrowser::Service::GetFileInfo(::grpc::ServerContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response) {
+::grpc::Status FileBrowser::Service::GetImageInfo(::grpc::ServerContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response) {
   (void) context;
   (void) request;
   (void) response;

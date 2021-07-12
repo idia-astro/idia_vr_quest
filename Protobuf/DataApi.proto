@@ -5,7 +5,7 @@ package DataApi;
 
 service FileBrowser {
     rpc GetFileList(FileListRequest) returns (FileList) {}
-    rpc GetFileInfo(ImageInfoRequest) returns (ImageInfo) {}
+    rpc GetImageInfo(ImageInfoRequest) returns (ImageInfo) {}
 }
 
 message FileListRequest {

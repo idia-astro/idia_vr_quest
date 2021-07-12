@@ -185,15 +185,15 @@ const char descriptor_table_protodef_DataApi_2eproto[] PROTOBUF_SECTION_VARIABLE
   "FileType\022\022\n\ndimensions\030\003 \003(\005\"H\n\020ImageInf"
   "oRequest\022\025\n\rdirectoryName\030\001 \001(\t\022\020\n\010fileN"
   "ame\030\002 \001(\t\022\013\n\003hdu\030\003 \001(\t*4\n\010FileType\022\013\n\007Un"
-  "known\020\000\022\010\n\004Fits\020\001\022\010\n\004Hdf5\020\002\022\007\n\003Mhd\020\0032\213\001\n"
+  "known\020\000\022\010\n\004Fits\020\001\022\010\n\004Hdf5\020\002\022\007\n\003Mhd\020\0032\214\001\n"
   "\013FileBrowser\022<\n\013GetFileList\022\030.DataApi.Fi"
-  "leListRequest\032\021.DataApi.FileList\"\000\022>\n\013Ge"
-  "tFileInfo\022\031.DataApi.ImageInfoRequest\032\022.D"
-  "ataApi.ImageInfo\"\000b\006proto3"
+  "leListRequest\032\021.DataApi.FileList\"\000\022\?\n\014Ge"
+  "tImageInfo\022\031.DataApi.ImageInfoRequest\032\022."
+  "DataApi.ImageInfo\"\000b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_DataApi_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_DataApi_2eproto = {
-  false, false, 666, descriptor_table_protodef_DataApi_2eproto, "DataApi.proto", 
+  false, false, 667, descriptor_table_protodef_DataApi_2eproto, "DataApi.proto", 
   &descriptor_table_DataApi_2eproto_once, nullptr, 0, 6,
   schemas, file_default_instances, TableStruct_DataApi_2eproto::offsets,
   file_level_metadata_DataApi_2eproto, file_level_enum_descriptors_DataApi_2eproto, file_level_service_descriptors_DataApi_2eproto,

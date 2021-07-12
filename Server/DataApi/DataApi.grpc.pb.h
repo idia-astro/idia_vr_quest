@@ -43,12 +43,12 @@ class FileBrowser final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::FileList>> PrepareAsyncGetFileList(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::FileList>>(PrepareAsyncGetFileListRaw(context, request, cq));
     }
-    virtual ::grpc::Status GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>> AsyncGetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>>(AsyncGetFileInfoRaw(context, request, cq));
+    virtual ::grpc::Status GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>> AsyncGetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>>(AsyncGetImageInfoRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>> PrepareAsyncGetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>>(PrepareAsyncGetFileInfoRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>> PrepareAsyncGetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>>(PrepareAsyncGetImageInfoRaw(context, request, cq));
     }
     class experimental_async_interface {
      public:
@@ -59,11 +59,11 @@ class FileBrowser final {
       #else
       virtual void GetFileList(::grpc::ClientContext* context, const ::DataApi::FileListRequest* request, ::DataApi::FileList* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       #endif
-      virtual void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)>) = 0;
       #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      virtual void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       #else
-      virtual void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      virtual void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       #endif
     };
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
@@ -76,8 +76,8 @@ class FileBrowser final {
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::FileList>* AsyncGetFileListRaw(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::FileList>* PrepareAsyncGetFileListRaw(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>* AsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>* PrepareAsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>* AsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::DataApi::ImageInfo>* PrepareAsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -89,12 +89,12 @@ class FileBrowser final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::FileList>> PrepareAsyncGetFileList(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::FileList>>(PrepareAsyncGetFileListRaw(context, request, cq));
     }
-    ::grpc::Status GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>> AsyncGetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>>(AsyncGetFileInfoRaw(context, request, cq));
+    ::grpc::Status GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::DataApi::ImageInfo* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>> AsyncGetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>>(AsyncGetImageInfoRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>> PrepareAsyncGetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>>(PrepareAsyncGetFileInfoRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>> PrepareAsyncGetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>>(PrepareAsyncGetImageInfoRaw(context, request, cq));
     }
     class experimental_async final :
       public StubInterface::experimental_async_interface {
@@ -105,11 +105,11 @@ class FileBrowser final {
       #else
       void GetFileList(::grpc::ClientContext* context, const ::DataApi::FileListRequest* request, ::DataApi::FileList* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
       #endif
-      void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)>) override;
+      void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, std::function<void(::grpc::Status)>) override;
       #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::ClientUnaryReactor* reactor) override;
       #else
-      void GetFileInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      void GetImageInfo(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
       #endif
      private:
       friend class Stub;
@@ -124,10 +124,10 @@ class FileBrowser final {
     class experimental_async async_stub_{this};
     ::grpc::ClientAsyncResponseReader< ::DataApi::FileList>* AsyncGetFileListRaw(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::DataApi::FileList>* PrepareAsyncGetFileListRaw(::grpc::ClientContext* context, const ::DataApi::FileListRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* AsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* PrepareAsyncGetFileInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* AsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::DataApi::ImageInfo>* PrepareAsyncGetImageInfoRaw(::grpc::ClientContext* context, const ::DataApi::ImageInfoRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_GetFileList_;
-    const ::grpc::internal::RpcMethod rpcmethod_GetFileInfo_;
+    const ::grpc::internal::RpcMethod rpcmethod_GetImageInfo_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -136,7 +136,7 @@ class FileBrowser final {
     Service();
     virtual ~Service();
     virtual ::grpc::Status GetFileList(::grpc::ServerContext* context, const ::DataApi::FileListRequest* request, ::DataApi::FileList* response);
-    virtual ::grpc::Status GetFileInfo(::grpc::ServerContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response);
+    virtual ::grpc::Status GetImageInfo(::grpc::ServerContext* context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_GetFileList : public BaseClass {
@@ -159,26 +159,26 @@ class FileBrowser final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_GetFileInfo : public BaseClass {
+  class WithAsyncMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_GetFileInfo() {
+    WithAsyncMethod_GetImageInfo() {
       ::grpc::Service::MarkMethodAsync(1);
     }
-    ~WithAsyncMethod_GetFileInfo() override {
+    ~WithAsyncMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetFileInfo(::grpc::ServerContext* context, ::DataApi::ImageInfoRequest* request, ::grpc::ServerAsyncResponseWriter< ::DataApi::ImageInfo>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestGetImageInfo(::grpc::ServerContext* context, ::DataApi::ImageInfoRequest* request, ::grpc::ServerAsyncResponseWriter< ::DataApi::ImageInfo>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_GetFileList<WithAsyncMethod_GetFileInfo<Service > > AsyncService;
+  typedef WithAsyncMethod_GetFileList<WithAsyncMethod_GetImageInfo<Service > > AsyncService;
   template <class BaseClass>
   class ExperimentalWithCallbackMethod_GetFileList : public BaseClass {
    private:
@@ -227,11 +227,11 @@ class FileBrowser final {
       { return nullptr; }
   };
   template <class BaseClass>
-  class ExperimentalWithCallbackMethod_GetFileInfo : public BaseClass {
+  class ExperimentalWithCallbackMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    ExperimentalWithCallbackMethod_GetFileInfo() {
+    ExperimentalWithCallbackMethod_GetImageInfo() {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::Service::
     #else
@@ -245,8 +245,8 @@ class FileBrowser final {
     #else
                    ::grpc::experimental::CallbackServerContext*
     #endif
-                     context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response) { return this->GetFileInfo(context, request, response); }));}
-    void SetMessageAllocatorFor_GetFileInfo(
+                     context, const ::DataApi::ImageInfoRequest* request, ::DataApi::ImageInfo* response) { return this->GetImageInfo(context, request, response); }));}
+    void SetMessageAllocatorFor_GetImageInfo(
         ::grpc::experimental::MessageAllocator< ::DataApi::ImageInfoRequest, ::DataApi::ImageInfo>* allocator) {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(1);
@@ -256,28 +256,28 @@ class FileBrowser final {
       static_cast<::grpc::internal::CallbackUnaryHandler< ::DataApi::ImageInfoRequest, ::DataApi::ImageInfo>*>(handler)
               ->SetMessageAllocator(allocator);
     }
-    ~ExperimentalWithCallbackMethod_GetFileInfo() override {
+    ~ExperimentalWithCallbackMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* GetFileInfo(
+    virtual ::grpc::ServerUnaryReactor* GetImageInfo(
       ::grpc::CallbackServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/)
     #else
-    virtual ::grpc::experimental::ServerUnaryReactor* GetFileInfo(
+    virtual ::grpc::experimental::ServerUnaryReactor* GetImageInfo(
       ::grpc::experimental::CallbackServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/)
     #endif
       { return nullptr; }
   };
   #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-  typedef ExperimentalWithCallbackMethod_GetFileList<ExperimentalWithCallbackMethod_GetFileInfo<Service > > CallbackService;
+  typedef ExperimentalWithCallbackMethod_GetFileList<ExperimentalWithCallbackMethod_GetImageInfo<Service > > CallbackService;
   #endif
 
-  typedef ExperimentalWithCallbackMethod_GetFileList<ExperimentalWithCallbackMethod_GetFileInfo<Service > > ExperimentalCallbackService;
+  typedef ExperimentalWithCallbackMethod_GetFileList<ExperimentalWithCallbackMethod_GetImageInfo<Service > > ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_GetFileList : public BaseClass {
    private:
@@ -296,18 +296,18 @@ class FileBrowser final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_GetFileInfo : public BaseClass {
+  class WithGenericMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_GetFileInfo() {
+    WithGenericMethod_GetImageInfo() {
       ::grpc::Service::MarkMethodGeneric(1);
     }
-    ~WithGenericMethod_GetFileInfo() override {
+    ~WithGenericMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -333,22 +333,22 @@ class FileBrowser final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_GetFileInfo : public BaseClass {
+  class WithRawMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_GetFileInfo() {
+    WithRawMethod_GetImageInfo() {
       ::grpc::Service::MarkMethodRaw(1);
     }
-    ~WithRawMethod_GetFileInfo() override {
+    ~WithRawMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetFileInfo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestGetImageInfo(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -391,11 +391,11 @@ class FileBrowser final {
       { return nullptr; }
   };
   template <class BaseClass>
-  class ExperimentalWithRawCallbackMethod_GetFileInfo : public BaseClass {
+  class ExperimentalWithRawCallbackMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    ExperimentalWithRawCallbackMethod_GetFileInfo() {
+    ExperimentalWithRawCallbackMethod_GetImageInfo() {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::Service::
     #else
@@ -409,21 +409,21 @@ class FileBrowser final {
     #else
                    ::grpc::experimental::CallbackServerContext*
     #endif
-                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetFileInfo(context, request, response); }));
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetImageInfo(context, request, response); }));
     }
-    ~ExperimentalWithRawCallbackMethod_GetFileInfo() override {
+    ~ExperimentalWithRawCallbackMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* GetFileInfo(
+    virtual ::grpc::ServerUnaryReactor* GetImageInfo(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
     #else
-    virtual ::grpc::experimental::ServerUnaryReactor* GetFileInfo(
+    virtual ::grpc::experimental::ServerUnaryReactor* GetImageInfo(
       ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
     #endif
       { return nullptr; }
@@ -456,35 +456,35 @@ class FileBrowser final {
     virtual ::grpc::Status StreamedGetFileList(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::DataApi::FileListRequest,::DataApi::FileList>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_GetFileInfo : public BaseClass {
+  class WithStreamedUnaryMethod_GetImageInfo : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithStreamedUnaryMethod_GetFileInfo() {
+    WithStreamedUnaryMethod_GetImageInfo() {
       ::grpc::Service::MarkMethodStreamed(1,
         new ::grpc::internal::StreamedUnaryHandler<
           ::DataApi::ImageInfoRequest, ::DataApi::ImageInfo>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
                      ::DataApi::ImageInfoRequest, ::DataApi::ImageInfo>* streamer) {
-                       return this->StreamedGetFileInfo(context,
+                       return this->StreamedGetImageInfo(context,
                          streamer);
                   }));
     }
-    ~WithStreamedUnaryMethod_GetFileInfo() override {
+    ~WithStreamedUnaryMethod_GetImageInfo() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status GetFileInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
+    ::grpc::Status GetImageInfo(::grpc::ServerContext* /*context*/, const ::DataApi::ImageInfoRequest* /*request*/, ::DataApi::ImageInfo* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedGetFileInfo(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::DataApi::ImageInfoRequest,::DataApi::ImageInfo>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedGetImageInfo(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::DataApi::ImageInfoRequest,::DataApi::ImageInfo>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_GetFileList<WithStreamedUnaryMethod_GetFileInfo<Service > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_GetFileList<WithStreamedUnaryMethod_GetImageInfo<Service > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_GetFileList<WithStreamedUnaryMethod_GetFileInfo<Service > > StreamedService;
+  typedef WithStreamedUnaryMethod_GetFileList<WithStreamedUnaryMethod_GetImageInfo<Service > > StreamedService;
 };
 
 }  // namespace DataApi
