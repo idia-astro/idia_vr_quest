@@ -78,7 +78,7 @@ OVRAssetBundles/
 /Assets/TextMesh Pro/
 /Assets/TextMesh Pro.meta
 
-# GRPC
+# gRPC
 /Assets/Plugins/Grpc.Core/
 /Assets/Plugins/Google.Protobuf/
 /Assets/Plugins/Grpc.Core.Api/
@@ -91,6 +91,11 @@ OVRAssetBundles/
 /Assets/Plugins/System.Buffers.meta
 /Assets/Plugins/System.Memory.meta
 /Assets/Plugins/System.Runtime.CompilerServices.Unsafe.meta
+
+# Generated gRPC files
+/Assets/Scripts/BackendService/
+/Assets/Scripts/BackendService.meta
+
 
 
 

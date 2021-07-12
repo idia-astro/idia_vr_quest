@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package idia_vr_quest;
+package BackendService;
 
 
 service FileBrowser {
