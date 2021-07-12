@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package idia_vr_quest;
+
+
+service FileBrowser {
+    rpc GetFileList(FileListRequest) returns (FileList) {}
+    rpc GetFileInfo(ImageInfoRequest) returns (ImageInfo) {}
+}
+
+message FileListRequest {
+    string directoryName = 1;
+}
+
+message FileList {
+    string directoryName = 1;
+    repeated DirectoryInfo subDirectories = 2;
+    repeated FileInfo files = 3;
+}
+
+message DirectoryInfo {
+    string name = 1;
+    int64  numItems = 2;
+    int64 date = 3;
+}
+
+message FileInfo {
+    string name = 1;
+    int64 size = 2;
+    int64 date = 3;
+}
+
+message ImageInfo {
+    string fileName = 1 ;
+    FileType fileType = 2;
+    repeated int32 dimensions = 3;
+}
+
+enum FileType {
+    Unknown = 0;
+    Fits = 1;
+    Hdf5 = 2;
+    Mhd = 3;
+}
+
+message ImageInfoRequest {
+    string directoryName = 1;
+    string fileName = 2;
+    string hdu = 3;
+}
+
+
