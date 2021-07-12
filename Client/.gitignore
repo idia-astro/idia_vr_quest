@@ -78,6 +78,10 @@ OVRAssetBundles/
 /Assets/TextMesh Pro/
 /Assets/TextMesh Pro.meta
 
+# Generated textures
+/Assets/Textures/*.asset
+/Assets/Textures/*.asset.meta
+
 # gRPC
 /Assets/Plugins/Grpc.Core/
 /Assets/Plugins/Google.Protobuf/
@@ -93,8 +97,8 @@ OVRAssetBundles/
 /Assets/Plugins/System.Runtime.CompilerServices.Unsafe.meta
 
 # Generated gRPC files
-/Assets/Scripts/BackendService/
-/Assets/Scripts/BackendService.meta
+/Assets/Scripts/DataApi/
+/Assets/Scripts/DataApi.meta
 
 
 
