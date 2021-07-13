@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "../DataApi/DataApi.grpc.pb.h."
 
@@ -17,6 +18,8 @@ public:
     grpc::Status GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) override;
     grpc::Status GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) override;
 
+private:
+    static std::vector<long> GetImageDimensions(fs::path path);
 };
 
-#endif //SERVER_FILEBROWSERIMPL_H
+#endif // SERVER_FILEBROWSERIMPL_H
