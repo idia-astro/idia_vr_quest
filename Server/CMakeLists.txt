@@ -11,7 +11,8 @@ include_directories(${PROTOBUF_INCLUDE_DIR})
 add_executable(Server
         DataApi/DataApi.grpc.pb.cc
         DataApi/DataApi.pb.cc
-        src/main.cc
+        src/main.cpp
+        src/Util.cpp
         src/FileBrowserImpl.cpp
         )
 

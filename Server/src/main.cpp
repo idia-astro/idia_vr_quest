@@ -11,9 +11,9 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-void RunServer() {
+void RunServer(const std::string& base_path_string) {
     std::string server_address("0.0.0.0:50051");
-    FileBrowserImpl service;
+    FileBrowserImpl service(base_path_string);
 
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
@@ -32,7 +32,11 @@ void RunServer() {
     server->Wait();
 }
 
-int main() {
-    RunServer();
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cout << "Usage " << argv[0] << " <base folder>" << std::endl;
+        return 1;
+    }
+    RunServer(argv[1]);
     return 0;
 }
