@@ -6,8 +6,7 @@
 
 namespace fs = std::filesystem;
 
-int GetNumItems(const fs::path& path);
-int GetNumItems(const std::string& path);
-
+int GetFolderItemCount(const fs::path& path);
+uint64_t GetMagicNumber(const fs::path& path);
 
 #endif //SERVER_UTIL_H
