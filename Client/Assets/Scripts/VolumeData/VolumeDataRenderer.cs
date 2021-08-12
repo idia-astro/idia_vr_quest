@@ -1,4 +1,6 @@
 using System;
+using DataApi;
+using Grpc.Core;
 using Services;
 using TMPro;
 using UnityEngine;
@@ -52,8 +54,6 @@ namespace VolumeData
         private float _currentStepCount;
         private TMP_Text _debugTextOverlay;
 
-        private BackendService _backendService;
-
         void Awake()
         {
             _materialInstance = Instantiate(rayMarchingMaterial);
@@ -67,7 +67,6 @@ namespace VolumeData
             float diag = Mathf.Sqrt(w * w + h * h + d * d);
             maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
             _renderer = GetComponent<Renderer>();
-            _backendService = FindObjectOfType<BackendService>();
         }
 
         async void Start()
@@ -81,19 +80,15 @@ namespace VolumeData
             _targetGpuUsage = 0.9f;
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
-            var result = await _backendService.GetFileList("fits");
-            foreach (var dir in result.subDirectories)
-            {
-                Debug.Log($"{dir.name}: {dir.numItems} items");
-            }
 
-            foreach (var file in result.files)
+            var backendService = BackendService.Instance;
+            var list = await backendService.GetFileList("fits");
+            Debug.Log(list);
+            foreach (var file in list.Files)
             {
-                Debug.Log($"{file.name}: {Util.FormattingFunctions.GetPrettyFileSizeString(file.size)}");
+                var imageInfo = await backendService.GetFileInfo(list.DirectoryName, file.Name);
+                Debug.Log(imageInfo);
             }
-
-            var info = await _backendService.GetExtendedFileInfo("fits", "test.fits");
-            Debug.Log(info.fileType);
         }
 
         void Update()
