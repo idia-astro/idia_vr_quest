@@ -40,9 +40,9 @@ namespace Services
             return await _fileBrowserClient.GetFileListAsync(new FileListRequest{DirectoryName = directory});
         }
 
-        public async Task<ImageInfo> GetFileInfo(string directory, string filename, string hdu = "")
+        public async Task<ImageInfo> GetImageInfo(string directory, string filename, string hdu = "")
         {
-            return await _fileBrowserClient.GetFileInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, Hdu = hdu });
+            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, Hdu = hdu });
         }
     }
 }

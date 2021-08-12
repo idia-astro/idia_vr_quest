@@ -86,7 +86,7 @@ namespace VolumeData
             Debug.Log(list);
             foreach (var file in list.Files)
             {
-                var imageInfo = await backendService.GetFileInfo(list.DirectoryName, file.Name);
+                var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
                 Debug.Log(imageInfo);
             }
         }
