@@ -1,10 +1,9 @@
-#include "FileBrowserImpl.h"
-
 #include <iostream>
 
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
+
+#include "FileBrowserImpl.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -20,7 +19,7 @@ void RunServer(const std::string& base_path_string) {
     ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
-    // Finally assemble the server.
+    // Finally, assemble the server.
     std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << " with files from " << base_path_string << std::endl;
 

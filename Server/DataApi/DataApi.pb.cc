@@ -91,7 +91,8 @@ constexpr ImageInfoRequest::ImageInfoRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : directoryname_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , filename_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , hdu_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+  , hduname_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , hdunum_(0){}
 struct ImageInfoRequestDefaultTypeInternal {
   constexpr ImageInfoRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -152,7 +153,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_DataApi_2eproto::offsets[] PRO
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::DataApi::ImageInfoRequest, directoryname_),
   PROTOBUF_FIELD_OFFSET(::DataApi::ImageInfoRequest, filename_),
-  PROTOBUF_FIELD_OFFSET(::DataApi::ImageInfoRequest, hdu_),
+  PROTOBUF_FIELD_OFFSET(::DataApi::ImageInfoRequest, hduname_),
+  PROTOBUF_FIELD_OFFSET(::DataApi::ImageInfoRequest, hdunum_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::DataApi::FileListRequest)},
@@ -182,18 +184,19 @@ const char descriptor_table_protodef_DataApi_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\030\003 \001(\003\"4\n\010FileInfo\022\014\n\004name\030\001 \001(\t\022\014\n\004size"
   "\030\002 \001(\003\022\014\n\004date\030\003 \001(\003\"V\n\tImageInfo\022\020\n\010fil"
   "eName\030\001 \001(\t\022#\n\010fileType\030\002 \001(\0162\021.DataApi."
-  "FileType\022\022\n\ndimensions\030\003 \003(\005\"H\n\020ImageInf"
+  "FileType\022\022\n\ndimensions\030\003 \003(\005\"\\\n\020ImageInf"
   "oRequest\022\025\n\rdirectoryName\030\001 \001(\t\022\020\n\010fileN"
-  "ame\030\002 \001(\t\022\013\n\003hdu\030\003 \001(\t*4\n\010FileType\022\013\n\007Un"
-  "known\020\000\022\010\n\004Fits\020\001\022\010\n\004Hdf5\020\002\022\007\n\003Mhd\020\0032\214\001\n"
-  "\013FileBrowser\022<\n\013GetFileList\022\030.DataApi.Fi"
-  "leListRequest\032\021.DataApi.FileList\"\000\022\?\n\014Ge"
-  "tImageInfo\022\031.DataApi.ImageInfoRequest\032\022."
-  "DataApi.ImageInfo\"\000b\006proto3"
+  "ame\030\002 \001(\t\022\017\n\007hduName\030\003 \001(\t\022\016\n\006hduNum\030\004 \001"
+  "(\005*4\n\010FileType\022\013\n\007Unknown\020\000\022\010\n\004Fits\020\001\022\010\n"
+  "\004Hdf5\020\002\022\007\n\003Mhd\020\0032\214\001\n\013FileBrowser\022<\n\013GetF"
+  "ileList\022\030.DataApi.FileListRequest\032\021.Data"
+  "Api.FileList\"\000\022\?\n\014GetImageInfo\022\031.DataApi"
+  ".ImageInfoRequest\032\022.DataApi.ImageInfo\"\000b"
+  "\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_DataApi_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_DataApi_2eproto = {
-  false, false, 667, descriptor_table_protodef_DataApi_2eproto, "DataApi.proto", 
+  false, false, 687, descriptor_table_protodef_DataApi_2eproto, "DataApi.proto", 
   &descriptor_table_DataApi_2eproto_once, nullptr, 0, 6,
   schemas, file_default_instances, TableStruct_DataApi_2eproto::offsets,
   file_level_metadata_DataApi_2eproto, file_level_enum_descriptors_DataApi_2eproto, file_level_service_descriptors_DataApi_2eproto,
@@ -1504,18 +1507,20 @@ ImageInfoRequest::ImageInfoRequest(const ImageInfoRequest& from)
     filename_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_filename(), 
       GetArena());
   }
-  hdu_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_hdu().empty()) {
-    hdu_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_hdu(), 
+  hduname_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_hduname().empty()) {
+    hduname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_hduname(), 
       GetArena());
   }
+  hdunum_ = from.hdunum_;
   // @@protoc_insertion_point(copy_constructor:DataApi.ImageInfoRequest)
 }
 
 void ImageInfoRequest::SharedCtor() {
 directoryname_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 filename_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-hdu_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+hduname_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+hdunum_ = 0;
 }
 
 ImageInfoRequest::~ImageInfoRequest() {
@@ -1528,7 +1533,7 @@ void ImageInfoRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
   directoryname_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   filename_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  hdu_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  hduname_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void ImageInfoRequest::ArenaDtor(void* object) {
@@ -1549,7 +1554,8 @@ void ImageInfoRequest::Clear() {
 
   directoryname_.ClearToEmpty();
   filename_.ClearToEmpty();
-  hdu_.ClearToEmpty();
+  hduname_.ClearToEmpty();
+  hdunum_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1578,12 +1584,19 @@ const char* ImageInfoRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string hdu = 3;
+      // string hduName = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          auto str = _internal_mutable_hdu();
+          auto str = _internal_mutable_hduname();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "DataApi.ImageInfoRequest.hdu"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "DataApi.ImageInfoRequest.hduName"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 hduNum = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          hdunum_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1635,14 +1648,20 @@ failure:
         2, this->_internal_filename(), target);
   }
 
-  // string hdu = 3;
-  if (this->hdu().size() > 0) {
+  // string hduName = 3;
+  if (this->hduname().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_hdu().data(), static_cast<int>(this->_internal_hdu().length()),
+      this->_internal_hduname().data(), static_cast<int>(this->_internal_hduname().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "DataApi.ImageInfoRequest.hdu");
+      "DataApi.ImageInfoRequest.hduName");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_hdu(), target);
+        3, this->_internal_hduname(), target);
+  }
+
+  // int32 hduNum = 4;
+  if (this->hdunum() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_hdunum(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1675,11 +1694,18 @@ size_t ImageInfoRequest::ByteSizeLong() const {
         this->_internal_filename());
   }
 
-  // string hdu = 3;
-  if (this->hdu().size() > 0) {
+  // string hduName = 3;
+  if (this->hduname().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_hdu());
+        this->_internal_hduname());
+  }
+
+  // int32 hduNum = 4;
+  if (this->hdunum() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_hdunum());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1719,8 +1745,11 @@ void ImageInfoRequest::MergeFrom(const ImageInfoRequest& from) {
   if (from.filename().size() > 0) {
     _internal_set_filename(from._internal_filename());
   }
-  if (from.hdu().size() > 0) {
-    _internal_set_hdu(from._internal_hdu());
+  if (from.hduname().size() > 0) {
+    _internal_set_hduname(from._internal_hduname());
+  }
+  if (from.hdunum() != 0) {
+    _internal_set_hdunum(from._internal_hdunum());
   }
 }
 
@@ -1747,7 +1776,8 @@ void ImageInfoRequest::InternalSwap(ImageInfoRequest* other) {
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   directoryname_.Swap(&other->directoryname_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   filename_.Swap(&other->filename_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  hdu_.Swap(&other->hdu_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  hduname_.Swap(&other->hduname_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  swap(hdunum_, other->hdunum_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ImageInfoRequest::GetMetadata() const {

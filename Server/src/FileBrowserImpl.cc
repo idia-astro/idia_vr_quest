@@ -3,8 +3,7 @@
 #include <chrono>
 #include <filesystem>
 
-#include <cfitsio/fitsio.h>
-
+#include "FitsImage.h"
 #include "Util.h"
 
 #define FITS_MAGIC_NUM 0x2020454c504d4953
@@ -54,12 +53,9 @@ grpc::Status FileBrowserImpl::GetImageInfo(grpc::ServerContext* context, const D
 
     if (magic_number == FITS_MAGIC_NUM) {
         res->set_filetype(DataApi::FileType::Fits);
-        auto dims = GetImageDimensions(path);
-        auto* dims_field = res->mutable_dimensions();
-        dims_field->Reserve(dims.size());
-        for (int i = 0; i < dims.size(); i++) {
-            dims_field->Add(dims[i]);
-        }
+        FitsImage fits_image(path, req->hduname(), req->hdunum());
+        std::vector<int> dims = fits_image.Dimensions();
+        *res->mutable_dimensions() = {dims.begin(), dims.end()};
     } else if (magic_number == HDF5_MAGIC_NUM) {
         res->set_filetype(DataApi::FileType::Hdf5);
     } else {
@@ -67,31 +63,4 @@ grpc::Status FileBrowserImpl::GetImageInfo(grpc::ServerContext* context, const D
     }
 
     return grpc::Status::OK;
-}
-std::vector<long> FileBrowserImpl::GetImageDimensions(fs::path path) {
-    if (!fs::exists(path)) {
-        return {0};
-    }
-
-    fitsfile* ptr = nullptr;
-    int fits_status = 0;
-    fits_open_image(&ptr, path.string().c_str(), READONLY, &fits_status);
-    if (!ptr || fits_status) {
-        return {0};
-    }
-
-    int num_dim = 0;
-    std::vector<long> dimensions;
-    if (!ptr) {
-        fits_close_file(ptr, &fits_status);
-        return {0};
-    }
-    fits_get_img_dim(ptr, &num_dim, &fits_status);
-    if (num_dim > 0 && !fits_status) {
-        dimensions.resize(num_dim);
-        fits_get_img_size(ptr, num_dim, dimensions.data(), &fits_status);
-    }
-
-    fits_close_file(ptr, &fits_status);
-    return dimensions;
 }

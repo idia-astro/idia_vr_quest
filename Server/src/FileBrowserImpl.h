@@ -17,9 +17,6 @@ public:
     FileBrowserImpl(fs::path path);
     grpc::Status GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) override;
     grpc::Status GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) override;
-
-private:
-    static std::vector<long> GetImageDimensions(fs::path path);
 };
 
 #endif // SERVER_FILEBROWSERIMPL_H

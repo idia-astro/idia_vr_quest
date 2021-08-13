@@ -46,7 +46,8 @@ enum FileType {
 message ImageInfoRequest {
     string directoryName = 1;
     string fileName = 2;
-    string hdu = 3;
+    string hduName = 3;
+    int32 hduNum = 4;
 }
 
 

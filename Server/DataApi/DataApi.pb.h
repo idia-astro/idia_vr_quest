@@ -1069,7 +1069,8 @@ class ImageInfoRequest PROTOBUF_FINAL :
   enum : int {
     kDirectoryNameFieldNumber = 1,
     kFileNameFieldNumber = 2,
-    kHduFieldNumber = 3,
+    kHduNameFieldNumber = 3,
+    kHduNumFieldNumber = 4,
   };
   // string directoryName = 1;
   void clear_directoryname();
@@ -1103,20 +1104,29 @@ class ImageInfoRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_filename();
   public:
 
-  // string hdu = 3;
-  void clear_hdu();
-  const std::string& hdu() const;
-  void set_hdu(const std::string& value);
-  void set_hdu(std::string&& value);
-  void set_hdu(const char* value);
-  void set_hdu(const char* value, size_t size);
-  std::string* mutable_hdu();
-  std::string* release_hdu();
-  void set_allocated_hdu(std::string* hdu);
+  // string hduName = 3;
+  void clear_hduname();
+  const std::string& hduname() const;
+  void set_hduname(const std::string& value);
+  void set_hduname(std::string&& value);
+  void set_hduname(const char* value);
+  void set_hduname(const char* value, size_t size);
+  std::string* mutable_hduname();
+  std::string* release_hduname();
+  void set_allocated_hduname(std::string* hduname);
   private:
-  const std::string& _internal_hdu() const;
-  void _internal_set_hdu(const std::string& value);
-  std::string* _internal_mutable_hdu();
+  const std::string& _internal_hduname() const;
+  void _internal_set_hduname(const std::string& value);
+  std::string* _internal_mutable_hduname();
+  public:
+
+  // int32 hduNum = 4;
+  void clear_hdunum();
+  ::PROTOBUF_NAMESPACE_ID::int32 hdunum() const;
+  void set_hdunum(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_hdunum() const;
+  void _internal_set_hdunum(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:DataApi.ImageInfoRequest)
@@ -1128,7 +1138,8 @@ class ImageInfoRequest PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr directoryname_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr filename_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hdu_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hduname_;
+  ::PROTOBUF_NAMESPACE_ID::int32 hdunum_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_DataApi_2eproto;
 };
@@ -1815,65 +1826,85 @@ inline void ImageInfoRequest::set_allocated_filename(std::string* filename) {
   // @@protoc_insertion_point(field_set_allocated:DataApi.ImageInfoRequest.fileName)
 }
 
-// string hdu = 3;
-inline void ImageInfoRequest::clear_hdu() {
-  hdu_.ClearToEmpty();
+// string hduName = 3;
+inline void ImageInfoRequest::clear_hduname() {
+  hduname_.ClearToEmpty();
 }
-inline const std::string& ImageInfoRequest::hdu() const {
-  // @@protoc_insertion_point(field_get:DataApi.ImageInfoRequest.hdu)
-  return _internal_hdu();
+inline const std::string& ImageInfoRequest::hduname() const {
+  // @@protoc_insertion_point(field_get:DataApi.ImageInfoRequest.hduName)
+  return _internal_hduname();
 }
-inline void ImageInfoRequest::set_hdu(const std::string& value) {
-  _internal_set_hdu(value);
-  // @@protoc_insertion_point(field_set:DataApi.ImageInfoRequest.hdu)
+inline void ImageInfoRequest::set_hduname(const std::string& value) {
+  _internal_set_hduname(value);
+  // @@protoc_insertion_point(field_set:DataApi.ImageInfoRequest.hduName)
 }
-inline std::string* ImageInfoRequest::mutable_hdu() {
-  // @@protoc_insertion_point(field_mutable:DataApi.ImageInfoRequest.hdu)
-  return _internal_mutable_hdu();
+inline std::string* ImageInfoRequest::mutable_hduname() {
+  // @@protoc_insertion_point(field_mutable:DataApi.ImageInfoRequest.hduName)
+  return _internal_mutable_hduname();
 }
-inline const std::string& ImageInfoRequest::_internal_hdu() const {
-  return hdu_.Get();
+inline const std::string& ImageInfoRequest::_internal_hduname() const {
+  return hduname_.Get();
 }
-inline void ImageInfoRequest::_internal_set_hdu(const std::string& value) {
+inline void ImageInfoRequest::_internal_set_hduname(const std::string& value) {
   
-  hdu_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  hduname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void ImageInfoRequest::set_hdu(std::string&& value) {
+inline void ImageInfoRequest::set_hduname(std::string&& value) {
   
-  hdu_.Set(
+  hduname_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:DataApi.ImageInfoRequest.hdu)
+  // @@protoc_insertion_point(field_set_rvalue:DataApi.ImageInfoRequest.hduName)
 }
-inline void ImageInfoRequest::set_hdu(const char* value) {
+inline void ImageInfoRequest::set_hduname(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  hdu_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:DataApi.ImageInfoRequest.hdu)
+  hduname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:DataApi.ImageInfoRequest.hduName)
 }
-inline void ImageInfoRequest::set_hdu(const char* value,
+inline void ImageInfoRequest::set_hduname(const char* value,
     size_t size) {
   
-  hdu_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  hduname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:DataApi.ImageInfoRequest.hdu)
+  // @@protoc_insertion_point(field_set_pointer:DataApi.ImageInfoRequest.hduName)
 }
-inline std::string* ImageInfoRequest::_internal_mutable_hdu() {
+inline std::string* ImageInfoRequest::_internal_mutable_hduname() {
   
-  return hdu_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return hduname_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* ImageInfoRequest::release_hdu() {
-  // @@protoc_insertion_point(field_release:DataApi.ImageInfoRequest.hdu)
-  return hdu_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* ImageInfoRequest::release_hduname() {
+  // @@protoc_insertion_point(field_release:DataApi.ImageInfoRequest.hduName)
+  return hduname_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void ImageInfoRequest::set_allocated_hdu(std::string* hdu) {
-  if (hdu != nullptr) {
+inline void ImageInfoRequest::set_allocated_hduname(std::string* hduname) {
+  if (hduname != nullptr) {
     
   } else {
     
   }
-  hdu_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), hdu,
+  hduname_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), hduname,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:DataApi.ImageInfoRequest.hdu)
+  // @@protoc_insertion_point(field_set_allocated:DataApi.ImageInfoRequest.hduName)
+}
+
+// int32 hduNum = 4;
+inline void ImageInfoRequest::clear_hdunum() {
+  hdunum_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ImageInfoRequest::_internal_hdunum() const {
+  return hdunum_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ImageInfoRequest::hdunum() const {
+  // @@protoc_insertion_point(field_get:DataApi.ImageInfoRequest.hduNum)
+  return _internal_hdunum();
+}
+inline void ImageInfoRequest::_internal_set_hdunum(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  hdunum_ = value;
+}
+inline void ImageInfoRequest::set_hdunum(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_hdunum(value);
+  // @@protoc_insertion_point(field_set:DataApi.ImageInfoRequest.hduNum)
 }
 
 #ifdef __GNUC__
