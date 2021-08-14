@@ -1,4 +1,4 @@
-#include "FileBrowserImpl.h"
+#include "FileBrowserService.h"
 
 #include <chrono>
 #include <filesystem>
@@ -12,9 +12,9 @@
 
 namespace fs = std::filesystem;
 
-FileBrowserImpl::FileBrowserImpl(fs::path path) : _base_path(path) {}
+FileBrowserService::FileBrowserService(fs::path path) : _base_path(path) {}
 
-grpc::Status FileBrowserImpl::GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) {
+grpc::Status FileBrowserService::GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) {
     fs::path directory_path = _base_path / req->directoryname();
 
     if (!fs::exists(directory_path)) {
@@ -41,7 +41,7 @@ grpc::Status FileBrowserImpl::GetFileList(grpc::ServerContext* context, const Da
     return grpc::Status::OK;
 }
 
-grpc::Status FileBrowserImpl::GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) {
+grpc::Status FileBrowserService::GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) {
     fs::path path = _base_path / req->directoryname() / req->filename();
     if (!fs::exists(path)) {
         return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File does not exist");

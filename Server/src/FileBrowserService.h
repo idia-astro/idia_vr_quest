@@ -5,16 +5,16 @@
 #include <string>
 #include <vector>
 
-#include "../DataApi/DataApi.grpc.pb.h."
+#include "DataApi.grpc.pb.h"
 
 namespace fs = std::filesystem;
 
-class FileBrowserImpl final : public DataApi::FileBrowser::Service {
+class FileBrowserService final : public DataApi::FileBrowser::Service {
 private:
     fs::path _base_path;
 
 public:
-    FileBrowserImpl(fs::path path);
+    FileBrowserService(fs::path path);
     grpc::Status GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) override;
     grpc::Status GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) override;
 };
