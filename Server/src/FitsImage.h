@@ -1,10 +1,11 @@
 #ifndef IDIAVRSERVER_FITSIMAGE_H
 #define IDIAVRSERVER_FITSIMAGE_H
 
-#include <cfitsio/fitsio.h>
 #include <filesystem>
 #include <string>
 #include <vector>
+
+#include <fitsio.h>
 
 namespace fs = std::filesystem;
 

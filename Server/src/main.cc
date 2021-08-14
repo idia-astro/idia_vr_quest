@@ -13,7 +13,6 @@ void RunServer(const std::string& base_path_string) {
     std::string server_address("0.0.0.0:50051");
     FileBrowserService service(base_path_string);
 
-    grpc::EnableDefaultHealthCheckService(true);
     ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);

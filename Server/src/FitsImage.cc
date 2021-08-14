@@ -16,7 +16,8 @@ FitsImage::FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_
     // Switch to correct HDU
     if (!hdu_name.empty()) {
         char ext_name[FLEN_VALUE];
-        strcpy_s(ext_name, FLEN_VALUE, hdu_name.c_str());
+        auto l = hdu_name.copy(ext_name, FLEN_VALUE -1);
+        ext_name[l] = '\0';
         fits_movnam_hdu(_fptr, IMAGE_HDU, ext_name, 0, &fits_status);
         if (fits_status == BAD_HDU_NUM) {
             _error_message = "Cannot find hdu " + hdu_name;
