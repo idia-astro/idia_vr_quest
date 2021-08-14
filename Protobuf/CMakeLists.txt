@@ -4,7 +4,7 @@ find_package(Threads)
 
 if (WIN32)
     add_compile_options(/wd4251)
-endif()
+endif ()
 
 find_package(gRPC CONFIG QUIET)
 if (gRPC_FOUND)
@@ -28,22 +28,33 @@ else ()
     endif ()
 endif ()
 
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
+find_program(PROTOC protoc)
+find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
-set(PROTO_FILES
-        DataApi.proto
-        )
+# Proto file
+get_filename_component(proto_path_abs "./DataApi.proto" ABSOLUTE)
+get_filename_component(proto_path "${proto_path_abs}" PATH)
+# Generated sources
+set(proto_srcs "${CMAKE_BINARY_DIR}/proto/DataApi.pb.cc")
+set(proto_hdrs "${CMAKE_BINARY_DIR}/proto/DataApi.pb.h")
+set(grpc_srcs "${CMAKE_BINARY_DIR}/proto/DataApi.grpc.pb.cc")
+set(grpc_hdrs "${CMAKE_BINARY_DIR}/proto/DataApi.grpc.pb.h")
 
-include_directories(${PROTOBUF_INCLUDE_DIR})
+add_custom_command(
+        OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
+        COMMAND ${PROTOC}
+        ARGS --grpc_out "${CMAKE_BINARY_DIR}/proto"
+        --cpp_out "${CMAKE_BINARY_DIR}/proto"
+        -I "${proto_path}"
+        --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${proto_path_abs}"
+        DEPENDS "${proto_path_abs}")
 
-add_library(protolib ${PROTO_FILES})
-
+add_library(protolib ${proto_hdrs} ${proto_srcs} ${grpc_hdrs} ${grpc_srcs})
 target_link_libraries(protolib
-        PUBLIC
         ${PROTOBUF_LIBRARY}
         ${GRPC_LIBS}
         )
 
 target_include_directories(protolib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-protobuf_generate(TARGET protolib LANGUAGE cpp)
-# need to make sure protoc-gen-gprpc points to protoc-grpc_cpp_plugin, or use the "PLUGIN" variable below
-protobuf_generate(TARGET protolib LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc)

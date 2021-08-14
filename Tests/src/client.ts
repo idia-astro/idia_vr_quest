@@ -41,6 +41,11 @@ fileBrowserClient.getFileList(req, async (err, res) => {
         req.setDirectoryname(res.getDirectoryname());
         req.setFilename(file.getName());
         try {
+            // All at once:
+            // GetImageInfo(req).then(imageInfo=>{
+            //     console.log(chalk.green(`${imageInfo.getFilename()}:`), `${imageInfo.getDimensionsList()?.join("\u00D7")}`);
+            // });
+            // Sequential
             const imageInfo = await GetImageInfo(req);
             console.log(chalk.green(`${imageInfo.getFilename()}:`), `${imageInfo.getDimensionsList()?.join("\u00D7")}`);
         } catch (err) {
