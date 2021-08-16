@@ -3,7 +3,8 @@ import * as chalk from "chalk";
 import {FileBrowserClient} from "../DataApi/DataApi_grpc_pb";
 import {FileListRequest, ImageInfo, ImageInfoRequest} from "../DataApi/DataApi_pb";
 
-const fileBrowserClient = new FileBrowserClient("localhost:50051", grpc.credentials.createInsecure());
+const serverAddress = process.argv[process.argv.length - 1];
+const fileBrowserClient = new FileBrowserClient(process.argv[process.argv.length - 1], grpc.credentials.createInsecure());
 
 async function GetImageInfo(arg: ImageInfoRequest): Promise<ImageInfo> {
     return new Promise((resolve, reject) =>

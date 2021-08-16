@@ -123,6 +123,11 @@ export class ImageInfo extends jspb.Message {
   setDimensionsList(value: Array<number>): void;
   addDimensions(value: number, index?: number): number;
 
+  clearHeaderList(): void;
+  getHeaderList(): Array<ImageInfo.HeaderEntry>;
+  setHeaderList(value: Array<ImageInfo.HeaderEntry>): void;
+  addHeader(value?: ImageInfo.HeaderEntry, index?: number): ImageInfo.HeaderEntry;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ImageInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ImageInfo): ImageInfo.AsObject;
@@ -138,6 +143,35 @@ export namespace ImageInfo {
     filename: string,
     filetype: FileTypeMap[keyof FileTypeMap],
     dimensionsList: Array<number>,
+    headerList: Array<ImageInfo.HeaderEntry.AsObject>,
+  }
+
+  export class HeaderEntry extends jspb.Message {
+    getKey(): string;
+    setKey(value: string): void;
+
+    getValue(): string;
+    setValue(value: string): void;
+
+    getComment(): string;
+    setComment(value: string): void;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HeaderEntry.AsObject;
+    static toObject(includeInstance: boolean, msg: HeaderEntry): HeaderEntry.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HeaderEntry, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HeaderEntry;
+    static deserializeBinaryFromReader(message: HeaderEntry, reader: jspb.BinaryReader): HeaderEntry;
+  }
+
+  export namespace HeaderEntry {
+    export type AsObject = {
+      key: string,
+      value: string,
+      comment: string,
+    }
   }
 }
 
@@ -148,8 +182,11 @@ export class ImageInfoRequest extends jspb.Message {
   getFilename(): string;
   setFilename(value: string): void;
 
-  getHdu(): string;
-  setHdu(value: string): void;
+  getHduname(): string;
+  setHduname(value: string): void;
+
+  getHdunum(): number;
+  setHdunum(value: number): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ImageInfoRequest.AsObject;
@@ -165,7 +202,8 @@ export namespace ImageInfoRequest {
   export type AsObject = {
     directoryname: string,
     filename: string,
-    hdu: string,
+    hduname: string,
+    hdunum: number,
   }
 }
 

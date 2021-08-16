@@ -34,6 +34,14 @@ message ImageInfo {
     string fileName = 1 ;
     FileType fileType = 2;
     repeated int32 dimensions = 3;
+
+    message HeaderEntry {
+        string key = 1;
+        string value = 2;
+        string comment = 3;
+    }
+
+    repeated HeaderEntry header = 4;
 }
 
 enum FileType {
