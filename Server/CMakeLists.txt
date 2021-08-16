@@ -25,6 +25,7 @@ ELSE ()
 ENDIF ()
 
 add_executable(IdiaVrServer
+        src/Image.cc
         src/FitsImage.cc
         src/FileBrowserService.cc
         src/main.cc

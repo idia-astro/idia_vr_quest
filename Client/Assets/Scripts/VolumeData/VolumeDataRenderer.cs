@@ -1,10 +1,8 @@
 using System;
-using DataApi;
 using Grpc.Core;
 using Services;
 using TMPro;
 using UnityEngine;
-using UnityEngine.XR;
 
 namespace VolumeData
 {
@@ -81,13 +79,29 @@ namespace VolumeData
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
 
-            var backendService = BackendService.Instance;
-            var list = await backendService.GetFileList("fits");
-            Debug.Log(list);
-            foreach (var file in list.Files)
+            try
             {
-                var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
-                Debug.Log(imageInfo);
+                var backendService = BackendService.Instance;
+                var list = await backendService.GetFileList("fits");
+                Debug.Log(list);
+                foreach (var file in list.Files)
+                {
+                    var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
+                    var unitEntry = BackendService.GetEntry(imageInfo.Header, "BUNIT");
+                    if (unitEntry != null)
+                    {
+                        Debug.Log($"Image units: {unitEntry.Value}");
+                    }
+
+                    if (imageInfo.Dimensions.Count >= 3 && imageInfo.Dimensions[2] > 1)
+                    {
+                        Debug.Log($"{file.Name} is 3D ({imageInfo.Dimensions[2]} channels)");
+                    }
+                }
+            }
+            catch (RpcException ex)
+            {
+                Debug.LogError(ex.StatusCode + ex.Message);
             }
         }
 

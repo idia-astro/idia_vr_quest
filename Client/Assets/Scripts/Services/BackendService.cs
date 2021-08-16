@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using DataApi;
+using Google.Protobuf.Collections;
 using Grpc.Core;
-using JetBrains.Annotations;
 
 namespace Services
 {
    public class BackendService
     {
-        private static readonly string Address = "localhost";
-        private static readonly int Port = 50051;
+        private static readonly string Target = "a100gpu.idia.ac.za";
 
         private readonly Channel _channel;
         private readonly FileBrowser.FileBrowserClient _fileBrowserClient;
@@ -16,7 +15,7 @@ namespace Services
 
         private BackendService()
         {
-            _channel = new Channel(Address, Port, ChannelCredentials.Insecure);
+            _channel = new Channel(Target, ChannelCredentials.Insecure);
             _fileBrowserClient = new FileBrowser.FileBrowserClient(_channel);
         }
 
@@ -40,9 +39,27 @@ namespace Services
             return await _fileBrowserClient.GetFileListAsync(new FileListRequest{DirectoryName = directory});
         }
 
-        public async Task<ImageInfo> GetImageInfo(string directory, string filename, string hdu = "")
+        public async Task<ImageInfo> GetImageInfo(string directory, string filename, string hduName = "")
         {
-            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, Hdu = hdu });
+            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
+        }
+        
+        public async Task<ImageInfo> GetImageInfo(string directory, string filename, int hduNum)
+        {
+            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
+        }
+
+        public static ImageInfo.Types.HeaderEntry GetEntry(RepeatedField<ImageInfo.Types.HeaderEntry> headerEntries, string key)
+        {
+            foreach (var entry in headerEntries)
+            {
+                if (entry.Key == key)
+                {
+                    return entry;
+                }
+            }
+
+            return null;
         }
     }
 }

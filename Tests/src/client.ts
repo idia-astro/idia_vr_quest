@@ -49,6 +49,9 @@ fileBrowserClient.getFileList(req, async (err, res) => {
             // Sequential
             const imageInfo = await GetImageInfo(req);
             console.log(chalk.green(`${imageInfo.getFilename()}:`), `${imageInfo.getDimensionsList()?.join("\u00D7")}`);
+            const header = imageInfo.getHeaderList();
+            const unitEntry = header.find(entry=>entry.getKey()==="BUNIT");
+            console.log(unitEntry?.getValue());
         } catch (err) {
             console.error(err);
         }
