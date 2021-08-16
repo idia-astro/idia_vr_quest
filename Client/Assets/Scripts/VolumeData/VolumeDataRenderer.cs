@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Grpc.Core;
 using Services;
 using TMPro;
@@ -87,7 +88,8 @@ namespace VolumeData
                 foreach (var file in list.Files)
                 {
                     var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
-                    var unitEntry = BackendService.GetEntry(imageInfo.Header, "BUNIT");
+                    var unitEntry = imageInfo.Header.SingleOrDefault(e => e.Key == "BUNIT");
+                    
                     if (unitEntry != null)
                     {
                         Debug.Log($"Image units: {unitEntry.Value}");

@@ -48,18 +48,5 @@ namespace Services
         {
             return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
         }
-
-        public static ImageInfo.Types.HeaderEntry GetEntry(RepeatedField<ImageInfo.Types.HeaderEntry> headerEntries, string key)
-        {
-            foreach (var entry in headerEntries)
-            {
-                if (entry.Key == key)
-                {
-                    return entry;
-                }
-            }
-
-            return null;
-        }
     }
 }
