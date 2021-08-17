@@ -3,8 +3,10 @@ project(IdiaVrServer)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include_directories(${CMAKE_SOURCE_DIR}/third-party/include)
 
 find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 IF (WIN32)
     find_package(unofficial-cfitsio CONFIG REQUIRED)

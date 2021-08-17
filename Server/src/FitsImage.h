@@ -3,6 +3,9 @@
 
 #include <filesystem>
 
+// Has to be included first on Windows platforms due to TBYTE #define redefinition
+#include <spdlog/spdlog.h>
+
 #include <fitsio.h>
 
 #include "Image.h"

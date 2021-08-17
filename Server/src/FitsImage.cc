@@ -2,8 +2,6 @@
 
 #include <regex>
 
-#include <fmt/format.h>
-
 FitsImage::FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_num) {
     _hdu_name = hdu_name;
     int fits_status = 0;
@@ -13,7 +11,7 @@ FitsImage::FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_
         return;
     }
 
-    _file_name = path.filename();
+    _file_name = path.filename().string();
 
     int hdu_type;
     _hdu_name = "";
@@ -140,9 +138,9 @@ bool FitsImage::CloseFile() {
     }
 
     if (_file_id == TEMP_FILE_ID) {
-        fmt::print("Closing temporary file {}\n", _file_name);
+        spdlog::debug("Closing temporary file {}", _file_name);
     } else {
-        fmt::print("Closing resident file {} with file ID = {}\n", _file_name, _file_id);
+        spdlog::debug("Closing resident file {} with file ID = {}", _file_name, _file_id);
     }
 
     int status;
