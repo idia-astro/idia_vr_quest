@@ -36,5 +36,5 @@ powershell script `CompileGrpcServiceWindows.ps1` needs to be run before running
 
 ## Tests
 
-The test scripts are written in TypeScript. Run `npm install` and the powershell script `CompileGrpcServiceWindows.ps1`
+The test scripts are written in TypeScript, and require NodeJS and NPM. Run `npm install` and the powershell script `CompileGrpcServiceWindows.ps1`
 before running the client tests using `npm run start client`.
