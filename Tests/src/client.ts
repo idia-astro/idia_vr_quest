@@ -1,12 +1,12 @@
 import * as grpc from "@grpc/grpc-js";
 import * as chalk from "chalk";
 import {FileBrowserClient} from "../DataApi/DataApi_grpc_pb";
-import {FileListRequest, ImageInfo, ImageInfoRequest} from "../DataApi/DataApi_pb";
+import {FileListRequest, ImageInfo, FileRequest} from "../DataApi/DataApi_pb";
 
 const serverAddress = process.argv[process.argv.length - 1];
 const fileBrowserClient = new FileBrowserClient(process.argv[process.argv.length - 1], grpc.credentials.createInsecure());
 
-async function GetImageInfo(arg: ImageInfoRequest): Promise<ImageInfo> {
+async function GetImageInfo(arg: FileRequest): Promise<ImageInfo> {
     return new Promise((resolve, reject) =>
         fileBrowserClient.getImageInfo(arg, function (err, response) {
             if (err) {
@@ -38,7 +38,7 @@ fileBrowserClient.getFileList(req, async (err, res) => {
     }
 
     for (const file of files) {
-        const req = new ImageInfoRequest();
+        const req = new FileRequest();
         req.setDirectoryname(res.getDirectoryname());
         req.setFilename(file.getName());
         try {

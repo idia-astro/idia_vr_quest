@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using DataApi;
-using Google.Protobuf.Collections;
 using Grpc.Core;
 
 namespace Services
@@ -41,12 +40,12 @@ namespace Services
 
         public async Task<ImageInfo> GetImageInfo(string directory, string filename, string hduName = "")
         {
-            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
+            return await _fileBrowserClient.GetImageInfoAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
         }
         
         public async Task<ImageInfo> GetImageInfo(string directory, string filename, int hduNum)
         {
-            return await _fileBrowserClient.GetImageInfoAsync(new ImageInfoRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
+            return await _fileBrowserClient.GetImageInfoAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
         }
     }
 }

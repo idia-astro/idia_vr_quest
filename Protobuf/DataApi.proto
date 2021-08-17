@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package DataApi;
 
-
 service FileBrowser {
     rpc GetFileList(FileListRequest) returns (FileList) {}
-    rpc GetImageInfo(ImageInfoRequest) returns (ImageInfo) {}
+    rpc GetImageInfo(FileRequest) returns (ImageInfo) {}
+    rpc OpenImage(FileRequest) returns (OpenImageResponse) {}
 }
 
 message FileListRequest {
@@ -51,11 +51,17 @@ enum FileType {
     Mhd = 3;
 }
 
-message ImageInfoRequest {
+message FileRequest {
     string directoryName = 1;
     string fileName = 2;
     string hduName = 3;
     int32 hduNum = 4;
+}
+
+message OpenImageResponse {
+    bool success = 1;
+    int32 fileId = 2;
+    string message = 3;
 }
 
 

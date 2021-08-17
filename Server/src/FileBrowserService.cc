@@ -41,7 +41,7 @@ grpc::Status FileBrowserService::GetFileList(grpc::ServerContext* context, const
     return grpc::Status::OK;
 }
 
-grpc::Status FileBrowserService::GetImageInfo(grpc::ServerContext* context, const DataApi::ImageInfoRequest* req, DataApi::ImageInfo* res) {
+grpc::Status FileBrowserService::GetImageInfo(grpc::ServerContext* context, const DataApi::FileRequest* req, DataApi::ImageInfo* res) {
     fs::path path = _base_path / req->directoryname() / req->filename();
     if (!fs::exists(path)) {
         return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File does not exist");

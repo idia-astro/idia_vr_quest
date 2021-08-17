@@ -9,9 +9,3 @@ node_modules\.bin\grpc_tools_node_protoc `
     --plugin="protoc-gen-ts=node_modules\.bin\protoc-gen-ts.cmd" `
     --ts_out="service=grpc-node,mode=grpc-js:${out_dir}" `
     --grpc_out="grpc_js:${out_dir}" ..\Protobuf\DataApi.proto
-
-Write-Host "Compiling simplified client files (TypeScript)";
-$dir = md "DataApiSimple" -ea 0
-npx pbjs -p ..\Protobuf\ -t static-module --w commonjs -o DataApiSimple/index.js ..\Protobuf\DataApi.proto
-npx pbts -o .\DataApiSimple\index.d.ts .\DataApiSimple\index.js
-Write-Host "Complete";
