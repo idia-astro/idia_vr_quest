@@ -5,7 +5,7 @@ IndentWidth: 4
 Language: Cpp
 
 # Since we're using 4 space indents, we need a bit more room
-ColumnLimit: 140
+ColumnLimit: 180
 
 # Force pointers to the type for C++.
 DerivePointerAlignment: false

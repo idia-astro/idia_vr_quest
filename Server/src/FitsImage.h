@@ -12,10 +12,11 @@ namespace fs = std::filesystem;
 class FitsImage : public Image {
 private:
     fitsfile* _fptr;
+    std::string _file_name;
 
 public:
     FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_num);
-    ~FitsImage();
+    ~FitsImage() override;
     bool IsValid() override;
 
 private:

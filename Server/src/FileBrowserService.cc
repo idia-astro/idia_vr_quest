@@ -12,7 +12,9 @@
 
 namespace fs = std::filesystem;
 
-FileBrowserService::FileBrowserService(fs::path path) : _base_path(path) {}
+FileBrowserService::FileBrowserService(fs::path path) : _base_path(path) {
+    _file_id_counter = 0;
+}
 
 grpc::Status FileBrowserService::GetFileList(grpc::ServerContext* context, const DataApi::FileListRequest* req, DataApi::FileList* res) {
     fs::path directory_path = _base_path / req->directoryname();
@@ -51,31 +53,56 @@ grpc::Status FileBrowserService::GetImageInfo(grpc::ServerContext* context, cons
     res->add_dimensions(0);
     auto magic_number = GetMagicNumber(path);
 
-    std::unique_ptr<Image> image;
-    if (magic_number == FITS_MAGIC_NUM) {
-        res->set_filetype(DataApi::FileType::Fits);
-        image.reset(new FitsImage(path, req->hduname(), req->hdunum()));
-    } else if (magic_number == HDF5_MAGIC_NUM) {
-        res->set_filetype(DataApi::FileType::Hdf5);
-        // TODO: add HDF5 support
-        image.reset();
-    } else {
-        res->set_filetype(DataApi::FileType::Unknown);
-        image.reset();
+    if (magic_number != FITS_MAGIC_NUM) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "File type not supported");
     }
 
-    if (image && image->IsValid()) {
-        std::vector<int> dims = image->Dimensions();
-        *res->mutable_dimensions() = {dims.begin(), dims.end()};
+    res->set_filetype(DataApi::FileType::Fits);
+    std::unique_ptr<Image> image = std::make_unique<FitsImage>(path, req->hduname(), req->hdunum());
 
-        const auto& header = image->Header();
-        for (const auto& entry : header) {
-            auto* out_header = res->mutable_header()->Add();
-            out_header->set_key(entry.key);
-            out_header->set_value(entry.value);
-            out_header->set_comment(entry.comment);
-        }
+    if (!image || !image->IsValid()) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, image->ErrorMessage());
     }
 
+    if (!image->FillImageInfo(res)) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "File has invalid headers");
+    }
+
+    return grpc::Status::OK;
+}
+grpc::Status FileBrowserService::OpenImage(grpc::ServerContext* context, const DataApi::FileRequest* req, DataApi::OpenImageResponse* res) {
+    fs::path path = _base_path / req->directoryname() / req->filename();
+    if (!fs::exists(path)) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File does not exist");
+    }
+
+    auto magic_number = GetMagicNumber(path);
+
+    if (magic_number != FITS_MAGIC_NUM) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "File type not supported");
+    }
+
+    std::unique_ptr<Image> image = std::make_unique<FitsImage>(path, req->hduname(), req->hdunum());
+
+    if (!image || !image->IsValid()) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, image->ErrorMessage());
+    }
+
+    image->SetFileId(_file_id_counter);
+    res->set_fileid(_file_id_counter);
+
+    std::unique_lock image_lock(_image_map_mutex);
+    _image_map[_file_id_counter] = std::move(image);
+    _file_id_counter++;
+    return grpc::Status::OK;
+}
+grpc::Status FileBrowserService::CloseImage(grpc::ServerContext* context, const DataApi::CloseFileRequest* req, google::protobuf::Empty* res) {
+    std::unique_lock image_lock(_image_map_mutex);
+
+    if (!_image_map.count(req->fileid())) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File ID does not exist");
+    }
+
+    _image_map.at(req->fileid()).reset();
     return grpc::Status::OK;
 }

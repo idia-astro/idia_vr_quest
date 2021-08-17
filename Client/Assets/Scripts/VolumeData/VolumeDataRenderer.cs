@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using DataApi;
 using Grpc.Core;
 using Services;
 using TMPro;
@@ -85,6 +86,7 @@ namespace VolumeData
                 var backendService = BackendService.Instance;
                 var list = await backendService.GetFileList("fits");
                 Debug.Log(list);
+                ImageInfo cubeInfo = null;
                 foreach (var file in list.Files)
                 {
                     var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
@@ -98,7 +100,15 @@ namespace VolumeData
                     if (imageInfo.Dimensions.Count >= 3 && imageInfo.Dimensions[2] > 1)
                     {
                         Debug.Log($"{file.Name} is 3D ({imageInfo.Dimensions[2]} channels)");
+                        cubeInfo ??= imageInfo;
                     }
+                }
+
+                if (cubeInfo != null)
+                {
+                    var fileId = await backendService.OpenFile(list.DirectoryName, cubeInfo.FileName);
+                    Debug.Log($"File opened with ID={fileId}");
+                    await backendService.CloseFile(fileId);
                 }
             }
             catch (RpcException ex)

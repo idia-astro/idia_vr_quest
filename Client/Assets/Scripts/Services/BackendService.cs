@@ -47,5 +47,22 @@ namespace Services
         {
             return await _fileBrowserClient.GetImageInfoAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
         }
+
+        public async Task<int> OpenFile(string directory, string filename, string hduName = "")
+        {
+            var res = await _fileBrowserClient.OpenImageAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
+            return res.FileId;
+        }
+        
+        public async Task<int> OpenFile(string directory, string filename, int hduNum)
+        {
+            var res = await _fileBrowserClient.OpenImageAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
+            return res.FileId;
+        }
+
+        public async Task CloseFile(int fileId)
+        {
+            await _fileBrowserClient.CloseImageAsync(new CloseFileRequest{FileId = fileId});
+        }
     }
 }

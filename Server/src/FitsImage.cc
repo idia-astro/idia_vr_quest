@@ -13,6 +13,8 @@ FitsImage::FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_
         return;
     }
 
+    _file_name = path.filename();
+
     int hdu_type;
     _hdu_name = "";
 
@@ -135,6 +137,12 @@ bool FitsImage::FillHeaders() {
 bool FitsImage::CloseFile() {
     if (!_fptr) {
         return false;
+    }
+
+    if (_file_id == TEMP_FILE_ID) {
+        fmt::print("Closing temporary file {}\n", _file_name);
+    } else {
+        fmt::print("Closing resident file {} with file ID = {}\n", _file_name, _file_id);
     }
 
     int status;

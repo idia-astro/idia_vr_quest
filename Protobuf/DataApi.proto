@@ -1,11 +1,14 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package DataApi;
 
 service FileBrowser {
     rpc GetFileList(FileListRequest) returns (FileList) {}
     rpc GetImageInfo(FileRequest) returns (ImageInfo) {}
     rpc OpenImage(FileRequest) returns (OpenImageResponse) {}
+    rpc CloseImage(CloseFileRequest) returns (google.protobuf.Empty);
 }
 
 message FileListRequest {
@@ -59,9 +62,10 @@ message FileRequest {
 }
 
 message OpenImageResponse {
-    bool success = 1;
-    int32 fileId = 2;
-    string message = 3;
+    int32 fileId = 1;
 }
 
+message CloseFileRequest {
+    int32 fileId = 1;
+}
 

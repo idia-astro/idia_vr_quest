@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+#include <DataApi.pb.h>
+
+#define TEMP_FILE_ID -1
+
 struct HeaderEntry {
     std::string key;
     std::string value;
@@ -26,11 +30,16 @@ protected:
     std::string _unit;
     std::vector<HeaderEntry> _header;
     std::vector<WcsEntry> _wcs;
+    int _file_id = TEMP_FILE_ID;
 
 public:
     const std::vector<int>& Dimensions();
     const std::vector<HeaderEntry>& Header();
+    const std::string& ErrorMessage();
+    bool FillImageInfo(DataApi::ImageInfo* imageInfo);
     virtual bool IsValid() = 0;
+    virtual ~Image() = default;
+    void SetFileId(int id);
 };
 
 #endif // IDIAVRSERVER_IMAGE_H

@@ -1,3 +1,4 @@
+#include <fmt/format.h>
 #include <iostream>
 
 #include <grpcpp/grpcpp.h>
@@ -18,10 +19,7 @@ void RunServer(const std::string& base_path_string) {
     builder.RegisterService(&service);
     // Finally, assemble the server.
     std::unique_ptr<Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << " with files from " << base_path_string << std::endl;
-
-    // Wait for the server to shutdown. Note that some other thread must be
-    // responsible for shutting down the server for this call to ever return.
+    fmt::print("Server listening on {} with files from {}\n", server_address, base_path_string);
     server->Wait();
 }
 
