@@ -1,4 +1,4 @@
 /Protobuf/*.proto.meta
 /Server/BackendService/
-/Tests/BackendService/
+/TestClient/BackendService/
 .idea

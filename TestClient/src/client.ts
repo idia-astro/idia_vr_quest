@@ -4,7 +4,7 @@ import {FileBrowserClient} from "../DataApi/DataApi_grpc_pb";
 import {FileListRequest, ImageInfo, FileRequest} from "../DataApi/DataApi_pb";
 
 const serverAddress = process.argv[process.argv.length - 1];
-const fileBrowserClient = new FileBrowserClient(process.argv[process.argv.length - 1], grpc.credentials.createInsecure());
+const fileBrowserClient = new FileBrowserClient(serverAddress, grpc.credentials.createInsecure());
 
 async function GetImageInfo(arg: FileRequest): Promise<ImageInfo> {
     return new Promise((resolve, reject) =>
@@ -50,7 +50,7 @@ fileBrowserClient.getFileList(req, async (err, res) => {
             const imageInfo = await GetImageInfo(req);
             console.log(chalk.green(`${imageInfo.getFilename()}:`), `${imageInfo.getDimensionsList()?.join("\u00D7")}`);
             const header = imageInfo.getHeaderList();
-            const unitEntry = header.find(entry=>entry.getKey()==="BUNIT");
+            const unitEntry = header.find(entry => entry.getKey() === "BUNIT");
             console.log(unitEntry?.getValue());
         } catch (err) {
             console.error(err);

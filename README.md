@@ -5,9 +5,7 @@ with [gRPC](https://grpc.io/) used for communication.
 
 ## Server
 
-The server is written in C++, and should work on most Linux distributions, or Windows 10 (although this support may be
-removed soon). The build process has been tested on Ubuntu 20.04.2 LTS and Windows 10 (
-using [vcpkg](https://github.com/microsoft/vcpkg)).
+The server is written in C++, and should work on most Linux distributions, or Windows 10 (_for now_). The build process has been tested on Ubuntu 20.04.2 LTS and Windows 10 (using [vcpkg](https://github.com/microsoft/vcpkg)).
 
 ### Requirements
 
