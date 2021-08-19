@@ -1,4 +1,5 @@
 #include "FitsImage.h"
+#include "Timer/Timer.h"
 
 #include <regex>
 
@@ -73,7 +74,7 @@ FitsImage::~FitsImage() {
 }
 
 bool FitsImage::IsValid() {
-    return _fptr != nullptr && _error_message.empty();
+    return _fptr != nullptr && _error_message.empty() && _dimensions.size() >= 3;
 }
 
 bool FitsImage::FillHeaders() {
@@ -157,5 +158,19 @@ std::string FitsImage::TrimFitsValue(const std::string& val_string) {
     if (val_string.at(0) == '\'' && val_string.at(length - 1) == '\'') {
         return val_string.substr(1, length - 2);
     }
-    return std::string();
+    return val_string;
+}
+
+bool FitsImage::LoadData() {
+    if (!IsValid()) {
+        return false;
+    }
+
+    _data_cube.resize(TensorFShape {_dimensions[2], _dimensions[1], _dimensions[0]});
+    // multi-array indexing: c-style. Ordering is z, y, x
+    auto num_voxels = _data_cube.num_elements();
+    int status = 0;
+    long first_pixel[3] = {1, 1, 1};
+    fits_read_pix(_fptr, TFLOAT, first_pixel, num_voxels, 0, _data_cube.data(), 0, &status);
+    return status == 0;
 }

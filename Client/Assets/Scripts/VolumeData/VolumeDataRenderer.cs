@@ -1,10 +1,11 @@
 using System;
-using System.Linq;
+using System.Diagnostics;
 using DataApi;
 using Grpc.Core;
 using Services;
 using TMPro;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace VolumeData
 {
@@ -80,36 +81,48 @@ namespace VolumeData
             _targetGpuUsage = 0.9f;
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
+            var backendService = BackendService.Instance;
 
-            try
-            {
-                var backendService = BackendService.Instance;
-                var list = await backendService.GetFileList("fits");
-                Debug.Log(list);
-                ImageInfo cubeInfo = null;
-                foreach (var file in list.Files)
-                {
-                    var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
-                    var unitEntry = imageInfo.Header.SingleOrDefault(e => e.Key == "BUNIT");
-                    
-                    if (unitEntry != null)
-                    {
-                        Debug.Log($"Image units: {unitEntry.Value}");
-                    }
+            // try
+            // {
+            //     var list = await backendService.GetFileList("fits");
+            //     Debug.Log(list);
+            //     ImageInfo cubeInfo = null;
+            //     foreach (var file in list.Files)
+            //     {
+            //         var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
+            //         var unitEntry = imageInfo.Header.SingleOrDefault(e => e.Key == "BUNIT");
+            //
+            //         if (unitEntry != null)
+            //         {
+            //             Debug.Log($"Image units: {unitEntry.Value}");
+            //         }
+            //
+            //         if (imageInfo.Dimensions.Count >= 3 && imageInfo.Dimensions[2] > 1)
+            //         {
+            //             Debug.Log($"{file.Name} is 3D ({imageInfo.Dimensions[2]} channels)");
+            //             cubeInfo ??= imageInfo;
+            //         }
+            //     }
+            // }
+            // catch (RpcException ex)
+            // {
+            //     Debug.LogError(ex.StatusCode + ex.Message);
+            // }
 
-                    if (imageInfo.Dimensions.Count >= 3 && imageInfo.Dimensions[2] > 1)
-                    {
-                        Debug.Log($"{file.Name} is 3D ({imageInfo.Dimensions[2]} channels)");
-                        cubeInfo ??= imageInfo;
-                    }
-                }
-
-                if (cubeInfo != null)
-                {
-                    var fileId = await backendService.OpenFile(list.DirectoryName, cubeInfo.FileName);
-                    Debug.Log($"File opened with ID={fileId}");
-                    await backendService.CloseFile(fileId);
-                }
+            try {
+            var fileId = await backendService.OpenFile("fits/vr", "m81.fits");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var res = await backendService.GetData(fileId);
+            var rawByteSize = res.RawData.Length;
+            var floatByteSize = res.Data.Count * 4;
+            var maxSize = Math.Max(rawByteSize, floatByteSize);
+            sw.Stop();
+            var timeMs = sw.ElapsedMilliseconds;
+            var rate = (maxSize * 1e-3) / timeMs;
+            Debug.Log($"Received {maxSize} bytes of data for fileId={fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
+            await backendService.CloseFile(fileId);
             }
             catch (RpcException ex)
             {

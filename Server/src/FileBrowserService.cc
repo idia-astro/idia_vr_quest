@@ -89,6 +89,7 @@ grpc::Status FileBrowserService::OpenImage(grpc::ServerContext* context, const D
     }
 
     image->SetFileId(_file_id_counter);
+    image->LoadData();
     res->set_fileid(_file_id_counter);
 
     std::unique_lock image_lock(_image_map_mutex);
@@ -104,5 +105,23 @@ grpc::Status FileBrowserService::CloseImage(grpc::ServerContext* context, const 
     }
 
     _image_map.at(req->fileid()).reset();
+    return grpc::Status::OK;
+}
+
+grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const DataApi::GetDataRequest* req, DataApi::DataResponse* res) {
+    std::shared_lock image_lock(_image_map_mutex);
+    if (!_image_map.count(req->fileid())) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File ID does not exist");
+    }
+
+    const auto& image = _image_map.at(req->fileid());
+    if (!image->DataLoaded()) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "Image data not available");
+    }
+
+    if (!image->FillImageData(res)) {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "Problem accessing image data");
+    }
+
     return grpc::Status::OK;
 }

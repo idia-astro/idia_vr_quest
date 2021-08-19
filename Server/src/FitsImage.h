@@ -21,6 +21,7 @@ public:
     FitsImage(const fs::path& path, const std::string& hdu_name, int hdu_num);
     ~FitsImage() override;
     bool IsValid() override;
+    bool LoadData() override;
 
 private:
     bool FillHeaders();

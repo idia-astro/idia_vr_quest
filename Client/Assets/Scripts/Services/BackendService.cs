@@ -6,7 +6,8 @@ namespace Services
 {
    public class BackendService
     {
-        private static readonly string Target = "a100gpu.idia.ac.za";
+        private static readonly string Target = "localhost:50051";
+        //private static readonly string Target = "a100gpu.idia.ac.za";
 
         private readonly Channel _channel;
         private readonly FileBrowser.FileBrowserClient _fileBrowserClient;
@@ -14,7 +15,7 @@ namespace Services
 
         private BackendService()
         {
-            _channel = new Channel(Target, ChannelCredentials.Insecure);
+            _channel = new Channel(Target, ChannelCredentials.Insecure, new []{new ChannelOption(ChannelOptions.MaxReceiveMessageLength, 200000000)});
             _fileBrowserClient = new FileBrowser.FileBrowserClient(_channel);
         }
 
@@ -63,6 +64,11 @@ namespace Services
         public async Task CloseFile(int fileId)
         {
             await _fileBrowserClient.CloseImageAsync(new CloseFileRequest{FileId = fileId});
+        }
+
+        public async Task<DataResponse> GetData(int fileId)
+        {
+            return await _fileBrowserClient.GetDataAsync(new GetDataRequest { FileId = fileId });
         }
     }
 }

@@ -4,9 +4,14 @@
 #include <string>
 #include <vector>
 
+#include <boost/multi_array.hpp>
 #include <DataApi.pb.h>
 
 #define TEMP_FILE_ID -1
+
+typedef boost::multi_array<float, 3> TensorF;
+typedef TensorF::index TensorFIndex;
+typedef boost::array<TensorFIndex, 3> TensorFShape;
 
 struct HeaderEntry {
     std::string key;
@@ -30,6 +35,9 @@ protected:
     std::string _unit;
     std::vector<HeaderEntry> _header;
     std::vector<WcsEntry> _wcs;
+
+    TensorF _data_cube;
+
     int _file_id = TEMP_FILE_ID;
 
 public:
@@ -37,9 +45,12 @@ public:
     const std::vector<HeaderEntry>& Header();
     const std::string& ErrorMessage();
     bool FillImageInfo(DataApi::ImageInfo* imageInfo);
-    virtual bool IsValid() = 0;
-    virtual ~Image() = default;
+    bool FillImageData(DataApi::DataResponse* res);
+    bool DataLoaded();
     void SetFileId(int id);
+    virtual bool IsValid() = 0;
+    virtual bool LoadData() = 0;
+    virtual ~Image() = default;
 };
 
 #endif // IDIAVRSERVER_IMAGE_H

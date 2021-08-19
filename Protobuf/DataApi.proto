@@ -5,10 +5,11 @@ import "google/protobuf/empty.proto";
 package DataApi;
 
 service FileBrowser {
-    rpc GetFileList(FileListRequest) returns (FileList) {}
-    rpc GetImageInfo(FileRequest) returns (ImageInfo) {}
-    rpc OpenImage(FileRequest) returns (OpenImageResponse) {}
+    rpc GetFileList(FileListRequest) returns (FileList);
+    rpc GetImageInfo(FileRequest) returns (ImageInfo);
+    rpc OpenImage(FileRequest) returns (OpenImageResponse);
     rpc CloseImage(CloseFileRequest) returns (google.protobuf.Empty);
+    rpc GetData(GetDataRequest) returns (DataResponse);
 }
 
 message FileListRequest {
@@ -67,5 +68,31 @@ message OpenImageResponse {
 
 message CloseFileRequest {
     int32 fileId = 1;
+}
+
+message GetDataRequest {
+    int32 fileId = 1;
+    // Region configuration for the image (Unused for now)
+    int32 xMin = 2;
+    int32 xMax = 3;
+    int32 yMin = 4;
+    int32 yMax = 5;
+    int32 zMin = 6;
+    int32 zMax = 7;
+    // Down-sampling configuration (Unused for now)
+    int32 xyMip = 8;
+    int32 zMip = 9;
+
+    enum DownSamplingMode {
+        Mean = 0;
+        Max = 1;
+        Extrema = 2;
+    }
+    DownSamplingMode downSamplingMode = 10;
+}
+
+message DataResponse {
+    repeated float data = 1;
+    bytes rawData = 2;
 }
 
