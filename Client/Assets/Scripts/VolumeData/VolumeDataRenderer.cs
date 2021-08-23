@@ -130,7 +130,6 @@ namespace VolumeData
                 var d = dataTexture.depth;
                 float diag = Mathf.Sqrt(w * w + h * h + d * d);
                 maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
-                Debug.Log(_dataSource.FloatDataBounds);
                 _materialInstance.SetFloat(MaterialID.DataMin, _dataSource.FloatDataBounds.x);
                 _materialInstance.SetFloat(MaterialID.DataMax, _dataSource.FloatDataBounds.y);
             }
