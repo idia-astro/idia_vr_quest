@@ -92,7 +92,8 @@ message GetDataRequest {
 }
 
 message DataResponse {
-    repeated float data = 1;
-    bytes rawData = 2;
+    bytes rawData = 1;
+
+    // TODO: Compression
 }
 

@@ -1,21 +1,21 @@
 using System.Threading.Tasks;
 using DataApi;
 using Grpc.Core;
+using Util;
 
 namespace Services
 {
-   public class BackendService
+    public class BackendService
     {
-        private static readonly string Target = "localhost:50051";
-        //private static readonly string Target = "a100gpu.idia.ac.za";
-
         private readonly Channel _channel;
         private readonly FileBrowser.FileBrowserClient _fileBrowserClient;
         private static BackendService _instance;
 
         private BackendService()
         {
-            _channel = new Channel(Target, ChannelCredentials.Insecure, new []{new ChannelOption(ChannelOptions.MaxReceiveMessageLength, 200000000)});
+            var config = Config.Instance;
+            var channelOption = new ChannelOption(ChannelOptions.MaxReceiveMessageLength, config.maxCubeSizeMb * 1000000);
+            _channel = new Channel(config.serverAddress, ChannelCredentials.Insecure, new[] { channelOption });
             _fileBrowserClient = new FileBrowser.FileBrowserClient(_channel);
         }
 
@@ -27,23 +27,23 @@ namespace Services
                 return _instance;
             }
         }
-        
+
         public async void Close()
         {
             await _channel.ShutdownAsync();
-        }        
-        
+        }
+
         // Utility wrappers around the grpc calls
         public async Task<FileList> GetFileList(string directory)
         {
-            return await _fileBrowserClient.GetFileListAsync(new FileListRequest{DirectoryName = directory});
+            return await _fileBrowserClient.GetFileListAsync(new FileListRequest { DirectoryName = directory });
         }
 
         public async Task<ImageInfo> GetImageInfo(string directory, string filename, string hduName = "")
         {
             return await _fileBrowserClient.GetImageInfoAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
         }
-        
+
         public async Task<ImageInfo> GetImageInfo(string directory, string filename, int hduNum)
         {
             return await _fileBrowserClient.GetImageInfoAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
@@ -54,7 +54,7 @@ namespace Services
             var res = await _fileBrowserClient.OpenImageAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduName = hduName });
             return res.FileId;
         }
-        
+
         public async Task<int> OpenFile(string directory, string filename, int hduNum)
         {
             var res = await _fileBrowserClient.OpenImageAsync(new FileRequest { DirectoryName = directory, FileName = filename, HduNum = hduNum });
@@ -63,7 +63,7 @@ namespace Services
 
         public async Task CloseFile(int fileId)
         {
-            await _fileBrowserClient.CloseImageAsync(new CloseFileRequest{FileId = fileId});
+            await _fileBrowserClient.CloseImageAsync(new CloseFileRequest { FileId = fileId });
         }
 
         public async Task<DataResponse> GetData(int fileId)

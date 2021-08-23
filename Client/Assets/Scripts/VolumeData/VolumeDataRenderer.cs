@@ -5,6 +5,7 @@ using Grpc.Core;
 using Services;
 using TMPro;
 using UnityEngine;
+using Util;
 using Debug = UnityEngine.Debug;
 
 namespace VolumeData
@@ -82,47 +83,25 @@ namespace VolumeData
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
             var backendService = BackendService.Instance;
-
-            // try
-            // {
-            //     var list = await backendService.GetFileList("fits");
-            //     Debug.Log(list);
-            //     ImageInfo cubeInfo = null;
-            //     foreach (var file in list.Files)
-            //     {
-            //         var imageInfo = await backendService.GetImageInfo(list.DirectoryName, file.Name);
-            //         var unitEntry = imageInfo.Header.SingleOrDefault(e => e.Key == "BUNIT");
-            //
-            //         if (unitEntry != null)
-            //         {
-            //             Debug.Log($"Image units: {unitEntry.Value}");
-            //         }
-            //
-            //         if (imageInfo.Dimensions.Count >= 3 && imageInfo.Dimensions[2] > 1)
-            //         {
-            //             Debug.Log($"{file.Name} is 3D ({imageInfo.Dimensions[2]} channels)");
-            //             cubeInfo ??= imageInfo;
-            //         }
-            //     }
-            // }
-            // catch (RpcException ex)
-            // {
-            //     Debug.LogError(ex.StatusCode + ex.Message);
-            // }
-
-            try {
-            var fileId = await backendService.OpenFile("fits/vr", "m81.fits");
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            var res = await backendService.GetData(fileId);
-            var rawByteSize = res.RawData.Length;
-            var floatByteSize = res.Data.Count * 4;
-            var maxSize = Math.Max(rawByteSize, floatByteSize);
-            sw.Stop();
-            var timeMs = sw.ElapsedMilliseconds;
-            var rate = (maxSize * 1e-3) / timeMs;
-            Debug.Log($"Received {maxSize} bytes of data for fileId={fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
-            await backendService.CloseFile(fileId);
+            var config = Config.Instance;
+            var folder = config.folder;
+            
+            try
+            {
+                var fileId = await backendService.OpenFile(config.folder, config.file);
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                var dataResponse = await backendService.GetData(fileId);
+                var floatArray = new float[dataResponse.RawData.Length / 4];
+                // TODO: this could probably be optimised, because ToByteArray creates another copy
+                var byteArray = dataResponse.RawData.ToByteArray();
+                var dataSize = byteArray.Length;
+                Buffer.BlockCopy(byteArray, 0, floatArray, 0, dataSize);
+                sw.Stop();
+                var timeMs = sw.ElapsedMilliseconds;
+                var rate = (dataSize * 1e-3) / timeMs;
+                Debug.Log($"Received {(dataSize / 1.0e6):F1} MB of data for fileId={fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
+                await backendService.CloseFile(fileId);
             }
             catch (RpcException ex)
             {

@@ -46,13 +46,7 @@ bool Image::FillImageData(DataApi::DataResponse* res) {
     }
 
     auto num_voxels = _data_cube.num_elements();
-
-    // Todo: optimise
-    //res->mutable_data()->Resize(num_voxels, 0);
-    //memcpy(res->mutable_data()->mutable_data(), _data_cube.data(), sizeof(float) * num_voxels);
-
-    res->mutable_rawdata()->resize(num_voxels * sizeof(float));
-    memcpy(res->mutable_rawdata()->data(), _data_cube.data(), sizeof(float) * num_voxels);
+    res->set_rawdata(_data_cube.data(), num_voxels * sizeof(float));
 
     return true;
 }
