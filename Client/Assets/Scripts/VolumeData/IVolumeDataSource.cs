@@ -104,5 +104,7 @@ namespace VolumeData
         /// <param name="cropMax">Right-top-back corner of the requested crop region.</param>
         /// <returns>Task with value indicating whether the request was successful or not.</returns>
         public Task<bool> RequestCrop(Vector3Int cropMin, Vector3Int cropMax);
+
+        public void Update();
     }
 }

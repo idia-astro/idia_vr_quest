@@ -13,7 +13,6 @@ namespace VolumeData
     [RequireComponent(typeof(Renderer))]
     public class VolumeDataRenderer : MonoBehaviour
     {
-        public Texture3D dataTexture;
         public Material rayMarchingMaterial;
 
         [Header("Rendering settings")] [Range(16, 512)]
@@ -55,19 +54,13 @@ namespace VolumeData
         private float _targetGpuUsage;
         private float _currentStepCount;
         private TMP_Text _debugTextOverlay;
+        private RemoteDataSource _dataSource;
 
         void Awake()
         {
             _materialInstance = Instantiate(rayMarchingMaterial);
-            _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
             _materialInstance.SetInt(MaterialID.NumColorMaps, ColorMapUtils.NumColorMaps);
-
-            // Limit step count based on data size
-            var w = dataTexture.width;
-            var h = dataTexture.height;
-            var d = dataTexture.depth;
-            float diag = Mathf.Sqrt(w * w + h * h + d * d);
-            maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
+            
             _renderer = GetComponent<Renderer>();
         }
 
@@ -76,41 +69,21 @@ namespace VolumeData
             var obj = GameObject.Find("DebugTextOverlay");
             _debugTextOverlay = obj?.GetComponent<TMP_Text>();
 
-            _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
             _renderer.material = _materialInstance;
 
             _targetGpuUsage = 0.9f;
             Unity.XR.Oculus.Stats.PerfMetrics.EnablePerfMetrics(true);
             Camera.main.depthTextureMode = DepthTextureMode.Depth;
-            var backendService = BackendService.Instance;
-            var config = Config.Instance;
-            var folder = config.folder;
             
-            try
-            {
-                var fileId = await backendService.OpenFile(config.folder, config.file);
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-                var dataResponse = await backendService.GetData(fileId);
-                var floatArray = new float[dataResponse.RawData.Length / 4];
-                // TODO: this could probably be optimised, because ToByteArray creates another copy
-                var byteArray = dataResponse.RawData.ToByteArray();
-                var dataSize = byteArray.Length;
-                Buffer.BlockCopy(byteArray, 0, floatArray, 0, dataSize);
-                sw.Stop();
-                var timeMs = sw.ElapsedMilliseconds;
-                var rate = (dataSize * 1e-3) / timeMs;
-                Debug.Log($"Received {(dataSize / 1.0e6):F1} MB of data for fileId={fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
-                await backendService.CloseFile(fileId);
-            }
-            catch (RpcException ex)
-            {
-                Debug.LogError(ex.StatusCode + ex.Message);
-            }
+            var config = Config.Instance;
+
+            _dataSource = new RemoteDataSource(config.folder, config.file);
         }
 
         void Update()
         {
+            _dataSource?.Update();
+            
             if (useAdaptiveStepCount)
             {
                 UpdateStepSize();
@@ -148,9 +121,22 @@ namespace VolumeData
 
         private void UpdateMaterialParameters()
         {
+            var dataTexture = _dataSource.FloatDataTexture;
+            if (dataTexture != null)
+            {
+                _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
+                var w = dataTexture.width;
+                var h = dataTexture.height;
+                var d = dataTexture.depth;
+                float diag = Mathf.Sqrt(w * w + h * h + d * d);
+                maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
+                Debug.Log(_dataSource.FloatDataBounds);
+                _materialInstance.SetFloat(MaterialID.DataMin, _dataSource.FloatDataBounds.x);
+                _materialInstance.SetFloat(MaterialID.DataMax, _dataSource.FloatDataBounds.y);
+            }
+           
             _materialInstance.SetInt(MaterialID.MaxSteps, Mathf.RoundToInt(_currentStepCount));
-            _materialInstance.SetFloat(MaterialID.DataMin, dataMin);
-            _materialInstance.SetFloat(MaterialID.DataMax, dataMax);
+
             _materialInstance.SetFloat(MaterialID.Threshold, threshold);
             _materialInstance.SetFloat(MaterialID.Jitter, jitter);
             _materialInstance.SetInt(MaterialID.ColorMapIndex, colormap.GetHashCode());
