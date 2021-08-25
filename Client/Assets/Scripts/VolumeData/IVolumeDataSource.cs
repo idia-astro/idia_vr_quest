@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace VolumeData
         Complete
     }
 
-    public interface IVolumeDataSource
+    public interface IVolumeDataSource : IDisposable
     {
         /// <summary>
         /// Flag indicating whether the data source is valid and ready for requests.

@@ -21,9 +21,9 @@ namespace VolumeData
         [Range(0, 1)] public float jitter = 1.0f;
         public ColorMapEnum colormap = ColorMapEnum.Turbo;
 
-        [Header("Data settings")] public float dataMin = 0;
-        public float dataMax = 1;
+        [Header("Data settings")]
         public float threshold = 0;
+        public bool useFloatingPointTexture = false;
 
         [Header("Adaptive performance settings")]
         public bool useAdaptiveStepCount = true;
@@ -64,7 +64,7 @@ namespace VolumeData
             _renderer = GetComponent<Renderer>();
         }
 
-        async void Start()
+        void Start()
         {
             var obj = GameObject.Find("DebugTextOverlay");
             _debugTextOverlay = obj?.GetComponent<TMP_Text>();
@@ -78,6 +78,11 @@ namespace VolumeData
             var config = Config.Instance;
 
             _dataSource = new RemoteDataSource(config.folder, config.file);
+        }
+
+        private void OnDestroy()
+        {
+            _dataSource?.Dispose();
         }
 
         void Update()
@@ -121,7 +126,7 @@ namespace VolumeData
 
         private void UpdateMaterialParameters()
         {
-            var dataTexture = _dataSource.FloatDataTexture;
+            var dataTexture = useFloatingPointTexture ? _dataSource.FloatDataTexture : _dataSource.ScaledDataTexture;
             if (dataTexture != null)
             {
                 _materialInstance.SetTexture(MaterialID.MainTex, dataTexture);
@@ -130,8 +135,16 @@ namespace VolumeData
                 var d = dataTexture.depth;
                 float diag = Mathf.Sqrt(w * w + h * h + d * d);
                 maximumStepCount = Math.Min(maximumStepCount, Mathf.RoundToInt(diag));
-                _materialInstance.SetFloat(MaterialID.DataMin, _dataSource.FloatDataBounds.x);
-                _materialInstance.SetFloat(MaterialID.DataMax, _dataSource.FloatDataBounds.y);
+                if (useFloatingPointTexture)
+                {
+                    _materialInstance.SetFloat(MaterialID.DataMin, _dataSource.FloatDataBounds.x);
+                    _materialInstance.SetFloat(MaterialID.DataMax, _dataSource.FloatDataBounds.y);    
+                }
+                else
+                {
+                    _materialInstance.SetFloat(MaterialID.DataMin, 0);
+                    _materialInstance.SetFloat(MaterialID.DataMax, 1);
+                }
             }
            
             _materialInstance.SetInt(MaterialID.MaxSteps, Mathf.RoundToInt(_currentStepCount));

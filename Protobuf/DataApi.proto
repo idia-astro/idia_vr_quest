@@ -93,7 +93,8 @@ message GetDataRequest {
 
 message DataResponse {
     bytes rawData = 1;
-
+    float minValue = 2;
+    float maxValue = 3;
     // TODO: Compression
 }
 

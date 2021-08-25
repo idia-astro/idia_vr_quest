@@ -46,7 +46,25 @@ bool Image::FillImageData(DataApi::DataResponse* res) {
     }
 
     auto num_voxels = _data_cube.num_elements();
-    res->set_rawdata(_data_cube.data(), num_voxels * sizeof(float));
 
+    float min_val = std::numeric_limits<float>::max();
+    float max_val = -std::numeric_limits<float>::max();
+
+    for (unsigned int i = 0; i < _data_cube.num_elements(); i++ )
+    {
+        auto val = _data_cube.data()[i];
+        if (std::isfinite(val)) {
+            if (val < min_val) {
+                min_val = val;
+            }
+            if (val > max_val) {
+                max_val = val;
+            }
+        }
+    }
+
+    res->set_rawdata(_data_cube.data(), num_voxels * sizeof(float));
+    res->set_minvalue(min_val);
+    res->set_maxvalue(max_val);
     return true;
 }
