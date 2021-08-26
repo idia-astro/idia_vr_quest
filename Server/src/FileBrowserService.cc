@@ -122,7 +122,7 @@ grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const Dat
     DataApi::DataResponse res;
 
     int channel = 0;
-    int channels_per_message = 4;
+    int channels_per_message = 1;
     int num_channels = image->Dimensions()[2];
     float min_value;
     float max_value;
