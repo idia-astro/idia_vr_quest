@@ -89,7 +89,7 @@ namespace VolumeData
         {
             _dataSource?.Update();
             
-            if (useAdaptiveStepCount)
+            if (_dataSource?.FloatDataTexture && useAdaptiveStepCount)
             {
                 UpdateStepSize();
             }

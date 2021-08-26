@@ -40,18 +40,25 @@ bool Image::DataLoaded() {
     return (num_voxels == _dimensions[0] * _dimensions[1] * _dimensions[2]);
 }
 
-bool Image::FillImageData(DataApi::DataResponse* res) {
+bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels) {
     if (!DataLoaded()) {
         return false;
     }
 
-    auto num_voxels = _data_cube.num_elements();
+    // crop to the remaining channels
+    num_channels = std::min(num_channels, _dimensions[2] - channelOffset);
+    auto pixels_per_channel = (_dimensions[0] * _dimensions[1]);
+    auto num_pixels = num_channels * pixels_per_channel;
 
-    float min_val = std::numeric_limits<float>::max();
-    float max_val = -std::numeric_limits<float>::max();
+    res.set_rawdata(_data_cube.data() + channelOffset * pixels_per_channel, num_pixels * sizeof(float));
+    return true;
+}
 
-    for (unsigned int i = 0; i < _data_cube.num_elements(); i++ )
-    {
+void Image::GetMinMax(float& min_val, float& max_val) {
+    min_val = std::numeric_limits<float>::max();
+    max_val = -std::numeric_limits<float>::max();
+    auto num_pixels = (_dimensions[0] * _dimensions[1] * _dimensions[2]);
+    for (auto i = 0; i < num_pixels; i++) {
         auto val = _data_cube.data()[i];
         if (std::isfinite(val)) {
             if (val < min_val) {
@@ -62,9 +69,4 @@ bool Image::FillImageData(DataApi::DataResponse* res) {
             }
         }
     }
-
-    res->set_rawdata(_data_cube.data(), num_voxels * sizeof(float));
-    res->set_minvalue(min_val);
-    res->set_maxvalue(max_val);
-    return true;
 }

@@ -108,7 +108,7 @@ grpc::Status FileBrowserService::CloseImage(grpc::ServerContext* context, const 
     return grpc::Status::OK;
 }
 
-grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const DataApi::GetDataRequest* req, DataApi::DataResponse* res) {
+grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const DataApi::GetDataRequest* req, grpc::ServerWriter<DataApi::DataResponse>* writer) {
     std::shared_lock image_lock(_image_map_mutex);
     if (!_image_map.count(req->fileid())) {
         return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "File ID does not exist");
@@ -119,8 +119,24 @@ grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const Dat
         return grpc::Status(grpc::StatusCode::INTERNAL, "Image data not available");
     }
 
-    if (!image->FillImageData(res)) {
-        return grpc::Status(grpc::StatusCode::INTERNAL, "Problem accessing image data");
+    DataApi::DataResponse res;
+
+    int channel = 0;
+    int channels_per_message = 4;
+    int num_channels = image->Dimensions()[2];
+    float min_value;
+    float max_value;
+
+    image->GetMinMax(min_value, max_value);
+    res.set_minvalue(min_value);
+    res.set_maxvalue(max_value);
+
+    while (channel < num_channels) {
+        if (!image->FillImageData(res, channel, channels_per_message)) {
+            return grpc::Status(grpc::StatusCode::INTERNAL, "Problem accessing image data");
+        }
+        writer->Write(res);
+        channel += channels_per_message;
     }
 
     return grpc::Status::OK;

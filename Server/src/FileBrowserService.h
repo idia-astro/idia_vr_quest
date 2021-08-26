@@ -24,7 +24,7 @@ public:
     grpc::Status GetImageInfo(grpc::ServerContext* context, const DataApi::FileRequest* req, DataApi::ImageInfo* res) override;
     grpc::Status OpenImage(grpc::ServerContext* context, const DataApi::FileRequest* req, DataApi::OpenImageResponse* res) override;
     grpc::Status CloseImage(grpc::ServerContext* context, const DataApi::CloseFileRequest* req, google::protobuf::Empty* res) override;
-    grpc::Status GetData(grpc::ServerContext* context, const DataApi::GetDataRequest* req, DataApi::DataResponse* res) override;
+    grpc::Status GetData(grpc::ServerContext* context, const DataApi::GetDataRequest* req, grpc::ServerWriter<DataApi::DataResponse>* writer) override;
 };
 
 #endif // SERVER_FILEBROWSERIMPL_H

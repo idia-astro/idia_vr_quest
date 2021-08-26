@@ -9,7 +9,7 @@ service FileBrowser {
     rpc GetImageInfo(FileRequest) returns (ImageInfo);
     rpc OpenImage(FileRequest) returns (OpenImageResponse);
     rpc CloseImage(CloseFileRequest) returns (google.protobuf.Empty);
-    rpc GetData(GetDataRequest) returns (DataResponse);
+    rpc GetData(GetDataRequest) returns (stream DataResponse);
 }
 
 message FileListRequest {

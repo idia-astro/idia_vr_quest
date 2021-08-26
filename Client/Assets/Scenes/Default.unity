@@ -573,14 +573,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04401bad1fc56324badf421ddc3e6504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataTexture: {fileID: 11700000, guid: b0e228102f3ba1b44acdba11c6638e78, type: 2}
   rayMarchingMaterial: {fileID: 2100000, guid: 25183d073bad071449cb2c91a83df9e1, type: 2}
   defaultStepCount: 128
   jitter: 1
   colormap: 35
-  dataMin: 0
-  dataMax: 1
   threshold: 0
+  useFloatingPointTexture: 0
   useAdaptiveStepCount: 1
   minimumStepCount: 32
   maximumStepCount: 512

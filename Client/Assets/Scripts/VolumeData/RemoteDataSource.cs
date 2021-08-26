@@ -33,6 +33,9 @@ namespace VolumeData
         private bool _requiresUpload;
         private int _channel;
 
+        private Texture2D _floatSliceTexture;
+        private Texture2D _scaledSliceTexture;
+
         public RemoteDataSource(string folder, string name)
         {
             IsValid = false;
@@ -62,28 +65,12 @@ namespace VolumeData
                     Debug.LogError($"Image file {name} has fewer than 3 dimensions");
                     return false;
                 }
-
+                
                 DataSourceDims = new Vector3Int(imageInfo.Dimensions[0], imageInfo.Dimensions[1], imageInfo.Dimensions[2]);
+                InitTextures();
+                
                 _fileId = await backendService.OpenFile(folder, name);
-
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-                var dataResponse = await backendService.GetData(_fileId);
-                var dataSize = dataResponse.RawData.Length;
-                sw.Stop();
-                
-                var timeMs = sw.ElapsedMilliseconds;
-                var rate = (dataSize * 1e-3) / timeMs;
-                Debug.Log($"Received {(dataSize / 1.0e6):F1} MB of data for fileId={_fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
-                FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
-                
-                sw.Reset();
-                sw.Start();
-                UpdateTextures(dataResponse.RawData);
-                sw.Stop();
-                
-                timeMs = sw.ElapsedMilliseconds;
-                Debug.Log($"Applied texture in {timeMs} ms");
+                await StreamData(_fileId);
 
             }
             catch (RpcException ex)
@@ -95,7 +82,95 @@ namespace VolumeData
             return true;
         }
 
-        private void UpdateTextures(ByteString rawData)
+        private async Task StreamData(int fileId)
+        {
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                int totalSize = 0;
+                int slice = 0;
+                int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
+
+                var floatPixels = new float[pixelsPerSlice];
+                var scaledPixels = new byte[pixelsPerSlice];
+                var backendService = BackendService.Instance;
+
+                using (var call = backendService.GetData(fileId))
+                {
+                    while (await call.ResponseStream.MoveNext())
+                    {
+                        var dataResponse = call.ResponseStream.Current;
+                        FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
+
+                        var dataSize = dataResponse.RawData.Length;
+                        totalSize += dataSize;
+
+                        var numProcessedSlices = UpdateTextures(dataResponse.RawData.ToByteArray(), floatPixels, scaledPixels, slice);
+                        slice += numProcessedSlices;
+                    }
+                }
+
+                sw.Stop();
+
+                var timeMs = sw.ElapsedMilliseconds;
+                var rate = (totalSize * 1e-3) / timeMs;
+                Debug.Log($"Received {(totalSize / 1.0e6):F1} MB of data for fileId={_fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
+            }
+            catch (RpcException ex)
+            {
+                Debug.LogError(ex.StatusCode + ex.Message);
+            }
+        }
+
+        private int UpdateTextures(byte[] rawData, float[] floatPixels, byte[] scaledPixels, int startingSlice)
+        {
+            int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
+            int bytesPerSlice = pixelsPerSlice * sizeof(float);
+            int slicesPerMessage = rawData.Length / bytesPerSlice;
+            for (int i = 0; i < slicesPerMessage; i++)
+            {
+                Buffer.BlockCopy(rawData, bytesPerSlice * i, floatPixels, 0, bytesPerSlice);
+
+                var minValue = FloatDataBounds.x;
+                var maxValue = FloatDataBounds.y;
+                var range = maxValue - minValue;
+
+                // Convert scaled array one-by-one
+                for (int j = 0; j < pixelsPerSlice; j++)
+                {
+                    var val = floatPixels[j];
+                    // handle numerical errors for min and max values
+                    if (val == minValue)
+                    {
+                        val = 0;
+                    }
+                    else if (val == maxValue)
+                    {
+                        val = 255;
+                    }
+                    else
+                    {
+                        val = 255 * (val - minValue) / range;
+                    }
+
+                    scaledPixels[j] = (byte)Mathf.RoundToInt(val);
+                }
+
+                _scaledSliceTexture.SetPixelData(scaledPixels, 0);
+                _floatSliceTexture.SetPixelData(floatPixels, 0);
+
+                _scaledSliceTexture.Apply();
+                _floatSliceTexture.Apply();
+                Graphics.CopyTexture(_floatSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, FloatDataTexture, startingSlice + i, 0, 0, 0);
+                Graphics.CopyTexture(_scaledSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, ScaledDataTexture, startingSlice + i, 0, 0, 0);
+            }
+
+            return slicesPerMessage;
+        }
+
+        private void InitTextures()
         {
             FloatDataTexture = new Texture3D(DataSourceDims.x, DataSourceDims.y, DataSourceDims.z, TextureFormat.RFloat, false)
             {
@@ -107,9 +182,24 @@ namespace VolumeData
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
-            };  
+            };
+                
+            _floatSliceTexture = new Texture2D(DataSourceDims.x, DataSourceDims.y, TextureFormat.RFloat, false)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };
             
-            var numPixels = rawData.Length / 4;
+            _scaledSliceTexture = new Texture2D(DataSourceDims.x, DataSourceDims.y, TextureFormat.R8, false)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };  
+        }
+
+        private void UpdateTextures(float[] floatData)
+        {
+            var numPixels = floatData.Length;
             var minValue = FloatDataBounds.x;
             var maxValue = FloatDataBounds.y;
             var range = maxValue - minValue;
@@ -118,13 +208,14 @@ namespace VolumeData
             var scaledArray = ScaledDataTexture.GetPixelData<byte>(0);
 
             // Update all FP32 data in one go
-            FloatDataTexture.SetPixelData(rawData.ToByteArray(), 0);
+            FloatDataTexture.SetPixelData(floatData, 0);
             
             // Convert scaled array one-by-one
             for (int i = 0; i < numPixels; i++)
             {
                 var val = floatArray[i];
-                // handle numerical errors for min and max values
+                // handle numerical errors for min and max values (suppress intellisense warnings)
+                // ReSharper disable CompareOfFloatsByEqualityOperator
                 if (val == minValue)
                 {
                     val = 0;
@@ -137,6 +228,8 @@ namespace VolumeData
                 {
                     val = 255 * (val - minValue) / range;
                 }
+                // ReSharper restore CompareOfFloatsByEqualityOperator
+
 
                 scaledArray[i] = (byte) Mathf.RoundToInt(val);
             }
