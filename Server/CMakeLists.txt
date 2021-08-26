@@ -44,4 +44,4 @@ target_link_libraries(IdiaVrServer
         cfitsio
         )
 
-add_subdirectory(proto)
+add_subdirectory(../Protobuf proto)
