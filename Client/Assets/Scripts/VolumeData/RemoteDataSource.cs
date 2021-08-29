@@ -47,6 +47,10 @@ namespace VolumeData
             _requiresUpload = false;
             _channel = 0;
 
+            int inputVal = 5;
+            int retVal = NativeFunctions.Test(inputVal);
+            Debug.Log($"NativeFunctions.Test: {inputVal} => {retVal}");
+            
             TestDecompression();
 
             _ = OpenFile(folder, name);
