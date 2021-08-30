@@ -72,9 +72,10 @@ namespace VolumeData
         private void TestDecompression()
         {
             int precision = 12;
-            int width = 10;
-            int height = 10;
-            int numPoints = width * height;
+            int width = 8;
+            int height = 8;
+            int depth = 8;
+            int numPoints = width * height * depth;
 
             IntPtr destPtr = Marshal.AllocHGlobal(sizeof(float) * numPoints);
             float[] destArray = new float[numPoints];
@@ -83,25 +84,34 @@ namespace VolumeData
                 destArray[i] = 0;
             }
             Marshal.Copy(destArray, 0, destPtr, numPoints);
-
-            byte[] srcArray = StringToByteArray("012d10008000dc2f5a379ef04bc4000a0e6801edc17348e766a944d4f8a6012d100004044440000214251004004214d002a130e0a2f3f03f36f48c30ab0f025a8080f720fd6a870c981795fbeb07b40001862084ca0c0a0cea8c4088025a8010d84c9184d08004218614d002012051906c2136301a882d4412025a8820b028040310044030040000");
+            
+            byte[] srcArray = StringToByteArray("f7b08edbed3351130300d0fbd951406f42d32100008a67dd1f001083006ab0002c171106f76ada10140cd7e04d4908c0a2ddc1a8303200d4240422e9918170f7f0542bac8183e4aad86861007a03531802b6ad1f048a67790e0010080006204a0800e02a2309002d471a0323c2594f18e595abc2c6789085a0be10331137bcab87277c7bf507b73cbad23f011ec37b0c0000a22d5dab0000a07898189ad0a4419d027b20706640d7f692c80190e734d9564c061d2fee9df9647e503dbcf565b68674c61f8db2c90628704a4478008adc659c026040f170ca200201e8833388dd0cf2831381228568f4b1328e21066f0ca0796dc8e5dc2d02dd00000000000000");
             int compressedSize = srcArray.Length;
             IntPtr srcPtr = Marshal.AllocHGlobal(compressedSize);
             Marshal.Copy(srcArray, 0, srcPtr, compressedSize);
             Debug.Log($"Decompressing {compressedSize} bytes of ZFP data to a {width}x{height} float array using p={precision}");
-            NativeFunctions.DecompressFloat2D(srcPtr, compressedSize, destPtr, width, height, precision);
+            int res = NativeFunctions.DecompressFloat3D(srcPtr, compressedSize, destPtr, width, height, depth, precision);
             Marshal.Copy(destPtr, destArray, 0, numPoints);
             string resultString = "";
-            for (int j = 0; j < height; j++)
+            for (int k = 0; k < depth; k++)
             {
-                for (int i = 0; i < width; i++)
+                for (int j = 0; j < height; j++)
                 {
-                    var val = destArray[j * width + i];
-                    resultString += $"{val:F2} ";
-                }
+                    for (int i = 0; i < width; i++)
+                    {
+                        var val = destArray[k * (width * depth) + j * width + i];
+                        resultString += $"{val:F2} ";
+                    }
 
+                    resultString += "\n";
+                }
                 resultString += "\n";
+                resultString += "\n";
+
             }
+            
+            Debug.Log($"Compression status={res}");
+
             Debug.Log(resultString);
         }
 

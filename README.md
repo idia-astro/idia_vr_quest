@@ -18,7 +18,8 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 - [fmt](https://github.com/fmtlib/fmt) and [spdlog](https://github.com/gabime/spdlog) libraries (`libfmt-dev`
   and `libspdlog-dev` on Debian; `fmt` and `spdlog` in vcpkg).
 - [cfitsio](https://heasarc.gsfc.nasa.gov/fitsio/) library (`libcfitsio-dev` on Debian; `cfitsio` in vcpkg).
-- [Boost.MultiArray]https://www.boost.org/doc/libs/1_77_0/libs/multi_array/doc/index.html) template library (`libboost-dev` on Debian; `boost-multi-array` in vcpkg).
+- [Boost.MultiArray](https://www.boost.org/doc/libs/1_77_0/libs/multi_array/doc/index.html) template library (`libboost-dev` on Debian; `boost-multi-array` in vcpkg).
+- [zfp](https://github.com/LLNL/zfp) library (`zfp` in vcpkg, compile from source on Debian).
 
 ### Building
 
