@@ -34,6 +34,9 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 The client is written in C#, and has only been tested on Windows (building for Android) with Unity 2021.1. The
 powershell script `CompileGrpcServiceWindows.ps1` needs to be run before running Unity.
 
+The client has a `NativeFunctions` C++ plugin that can be compiled using vcpkg (Windows) or the NDK (Android). Instructions to follow. 
+
+
 A `config.json` file should be placed in the [persistent data path](https://docs.unity3d.com/2021.1/Documentation/ScriptReference/Application-persistentDataPath.html), in order to specify the server address and file/folder paths. An example config is shown below:
 
 ```json
@@ -41,7 +44,9 @@ A `config.json` file should be placed in the [persistent data path](https://docs
   "serverAddress": "localhost:50051",
   "folder": "fits/vr",
   "file": "m81.fits",
-  "maxCubeSizeMb": 200
+  "maxCubeSizeMb": 200,
+  "slicesPerMessage": 4,
+  "compressionPrecision": 12
 }
 ```
 
