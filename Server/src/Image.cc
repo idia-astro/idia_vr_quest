@@ -58,19 +58,17 @@ bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num
     std::vector<char> compressed_data;
     size_t compressed_size = 0;
 
-    auto compression_status = CompressFloat3D(src_array, compressed_data, compressed_size, _dimensions[0], _dimensions[1], num_channels, precision);
+    auto compression_error_status = CompressFloat3D(src_array, compressed_data, compressed_size, _dimensions[0], _dimensions[1], num_channels, precision);
     compressed_data.resize(compressed_size);
 
-    if (!compression_status) {
-        spdlog::debug("Compressed channels. Size: {} b => {} b", num_pixels * sizeof(float), compressed_size);
-    } else {
+    if (compression_error_status) {
         spdlog::error("Error compressing data");
+        return false;
     }
 
     res.set_num_channels(num_channels);
     res.set_precision(precision);
     *res.mutable_raw_data() = {compressed_data.begin(), compressed_data.end()};
-    //res.set_raw_data(_data_cube.data() + channelOffset * pixels_per_channel, num_pixels * sizeof(float));
     return true;
 }
 

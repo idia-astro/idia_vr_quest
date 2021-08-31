@@ -102,30 +102,29 @@ namespace VolumeData
                 int channelsPerMessage = 4;
 
                 int numPoints = pixelsPerSlice * channelsPerMessage;
-                NativeArray<float> destArray = new NativeArray<float>(numPoints, Allocator.Persistent);
 
-                using (var call = backendService.GetData(fileId, precision, channelsPerMessage))
+                using var destArray = new NativeArray<float>(numPoints, Allocator.Persistent);
+                var call = backendService.GetData(fileId, precision, channelsPerMessage);
+
+                while (await call.ResponseStream.MoveNext())
                 {
-                    while (await call.ResponseStream.MoveNext())
-                    {
-                        var dataResponse = call.ResponseStream.Current;
-                        FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
+                    var dataResponse = call.ResponseStream.Current;
+                    FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
 
-                        var dataSize = dataResponse.RawData.Length;
-                        totalSize += dataSize;
-                        var decompressedData = DecompressData(dataResponse.RawData.ToByteArray(), destArray, DataSourceDims.x, DataSourceDims.y, dataResponse.NumChannels,
-                            precision);
-                        var numProcessedSlices = UpdateTextures(decompressedData, dataResponse.NumChannels, scaledPixels, slice);
-                        slice += numProcessedSlices;
-                    }
+                    var dataSize = dataResponse.RawData.Length;
+                    totalSize += dataSize;
+                    var decompressedData = DecompressData(dataResponse.RawData.ToByteArray(), destArray, DataSourceDims.x, DataSourceDims.y, dataResponse.NumChannels,
+                        precision);
+                    var numProcessedSlices = UpdateTextures(decompressedData, dataResponse.NumChannels, scaledPixels, slice);
+                    slice += numProcessedSlices;
                 }
+
 
                 sw.Stop();
 
                 var timeMs = sw.ElapsedMilliseconds;
                 var rate = (totalSize * 1e-3) / timeMs;
                 Debug.Log($"Received {(totalSize / 1.0e6):F1} MB of data for fileId={_fileId} in {timeMs:F1} ms ({rate:F1} MB/s)");
-                destArray.Dispose();
             }
             catch (RpcException ex)
             {
@@ -135,58 +134,43 @@ namespace VolumeData
 
         private static unsafe NativeArray<float> DecompressData(byte[] srcArray, NativeArray<float> destArray, int width, int height, int depth, int precision)
         {
-            var destPtr = (IntPtr)destArray.GetUnsafePtr();
-
-            int compressedSize = srcArray.Length;
-            IntPtr srcPtr = Marshal.AllocHGlobal(compressedSize);
-            Marshal.Copy(srcArray, 0, srcPtr, compressedSize);
-            int errorCode = NativeFunctions.DecompressFloat3D(srcPtr, compressedSize, destPtr, width, height, depth, precision);
-            if (errorCode != 0)
+            float* destPtr = (float*)destArray.GetUnsafePtr();
+            fixed (byte* srcPtr = srcArray)
             {
-                Debug.LogError("Error decompressing ZFP stream");
+                int compressedSize = srcArray.Length;
+
+                int errorCode = NativeFunctions.DecompressFloat3D(srcPtr, compressedSize, destPtr, width, height, depth, precision);
+                if (errorCode != 0)
+                {
+                    Debug.LogError("Error decompressing ZFP stream");
+                }
             }
 
-            Marshal.FreeHGlobal(srcPtr);
             return destArray;
         }
 
-        private int UpdateTextures(NativeArray<float> sourcePixels, int numSlices, byte[] scaledPixels, int startingSlice)
+        private unsafe int UpdateTextures(NativeArray<float> sourcePixels, int numSlices, byte[] scaledPixels, int startingSlice)
         {
             int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
-            for (int i = 0; i < numSlices; i++)
+            float* arrayPtr = (float*)sourcePixels.GetUnsafePtr();
+
+            fixed (byte* destPtr = scaledPixels)
             {
-                var minValue = FloatDataBounds.x;
-                var maxValue = FloatDataBounds.y;
-                var range = maxValue - minValue;
-
-                // Convert scaled array one-by-one
-                for (int j = 0; j < pixelsPerSlice; j++)
+                for (int i = 0; i < numSlices; i++)
                 {
-                    var val = sourcePixels[pixelsPerSlice * i + j];
-                    // handle numerical errors for min and max values
-                    if (val == minValue)
-                    {
-                        val = 0;
-                    }
-                    else if (val == maxValue)
-                    {
-                        val = 255;
-                    }
-                    else
-                    {
-                        val = 255 * (val - minValue) / range;
-                    }
+                    var minValue = FloatDataBounds.x;
+                    var maxValue = FloatDataBounds.y;
 
-                    scaledPixels[j] = (byte)Mathf.RoundToInt(val);
+                    float* srcPtr = arrayPtr + pixelsPerSlice * i;
+                    NativeFunctions.ScaleArray(srcPtr, destPtr, pixelsPerSlice, minValue, maxValue, 0);
+                    _scaledSliceTexture.SetPixelData(scaledPixels, 0);
+                    _floatSliceTexture.SetPixelData(sourcePixels, 0, i * pixelsPerSlice);
+
+                    _scaledSliceTexture.Apply();
+                    _floatSliceTexture.Apply();
+                    Graphics.CopyTexture(_floatSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, FloatDataTexture, startingSlice + i, 0, 0, 0);
+                    Graphics.CopyTexture(_scaledSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, ScaledDataTexture, startingSlice + i, 0, 0, 0);
                 }
-
-                _scaledSliceTexture.SetPixelData(scaledPixels, 0);
-                _floatSliceTexture.SetPixelData(sourcePixels, 0, i * pixelsPerSlice);
-
-                _scaledSliceTexture.Apply();
-                _floatSliceTexture.Apply();
-                Graphics.CopyTexture(_floatSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, FloatDataTexture, startingSlice + i, 0, 0, 0);
-                Graphics.CopyTexture(_scaledSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, ScaledDataTexture, startingSlice + i, 0, 0, 0);
             }
 
             return numSlices;
