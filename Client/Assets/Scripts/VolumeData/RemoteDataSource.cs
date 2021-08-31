@@ -9,6 +9,7 @@ using Services;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using Util;
 using Debug = UnityEngine.Debug;
 
 namespace VolumeData
@@ -92,19 +93,18 @@ namespace VolumeData
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
+                var config = Config.Instance;
                 int totalSize = 0;
                 int slice = 0;
                 int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
 
                 var scaledPixels = new byte[pixelsPerSlice];
                 var backendService = BackendService.Instance;
-                int precision = 12;
-                int channelsPerMessage = 4;
 
-                int numPoints = pixelsPerSlice * channelsPerMessage;
+                int numPoints = pixelsPerSlice * config.slicesPerMessage;
 
                 using var destArray = new NativeArray<float>(numPoints, Allocator.Persistent);
-                var call = backendService.GetData(fileId, precision, channelsPerMessage);
+                var call = backendService.GetData(fileId, config.compressionPrecision, config.slicesPerMessage);
 
                 while (await call.ResponseStream.MoveNext())
                 {
@@ -114,7 +114,7 @@ namespace VolumeData
                     var dataSize = dataResponse.RawData.Length;
                     totalSize += dataSize;
                     var decompressedData = DecompressData(dataResponse.RawData.ToByteArray(), destArray, DataSourceDims.x, DataSourceDims.y, dataResponse.NumChannels,
-                        precision);
+                        config.compressionPrecision);
                     var numProcessedSlices = UpdateTextures(decompressedData, dataResponse.NumChannels, scaledPixels, slice);
                     slice += numProcessedSlices;
                 }

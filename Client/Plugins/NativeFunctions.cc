@@ -4,14 +4,19 @@
 
 #include <zfp.h>
 
-
 int DecompressFloat3D(unsigned char* src_buffer, int compressed_size, float* dest_array, int width, int height, int depth, int precision) {
     int status = 0;
     zfp_type type = zfp_type_float;
     zfp_field* field;
     zfp_stream* zfp;
     bitstream* stream;
-    field = zfp_field_3d(dest_array, type, width, height, depth);
+
+    if (depth > 1) {
+        field = zfp_field_3d(dest_array, type, width, height, depth);
+    } else {
+        field = zfp_field_2d(dest_array, type, width, height);
+    }
+
     zfp = zfp_stream_open(nullptr);
 
     zfp_stream_set_precision(zfp, precision);
@@ -33,7 +38,6 @@ int DecompressFloat3D(unsigned char* src_buffer, int compressed_size, float* des
 void ScaleArray(const float* src_array, unsigned char* dest_array, int length, float min_value, float max_value, unsigned char nan_value) {
     float range = max_value - min_value;
 
-#pragma omp parallel for
     for (int i = 0; i < length; i++) {
         float val = src_array[i];
         if (std::isfinite(val)) {

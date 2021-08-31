@@ -8,7 +8,12 @@ int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer
     size_t buffer_size;
     bitstream* stream;
 
-    field = zfp_field_3d((void*)srcArray, type, width, height, depth);
+    if (depth > 1) {
+        field = zfp_field_3d((void*)srcArray, type, width, height, depth);
+    } else {
+        field = zfp_field_2d((void*)srcArray, type, width, height);
+    }
+
     zfp = zfp_stream_open(nullptr);
     zfp_stream_set_precision(zfp, precision);
 
