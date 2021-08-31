@@ -122,7 +122,7 @@ grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const Dat
     DataApi::DataResponse res;
 
     int channel = 0;
-    int channels_per_message = 1;
+    int channels_per_message = std::max(req->channels_per_message(), 1);
     int num_channels = image->Dimensions()[2];
     float min_value;
     float max_value;
@@ -132,7 +132,7 @@ grpc::Status FileBrowserService::GetData(grpc::ServerContext* context, const Dat
     res.set_max_value(max_value);
 
     while (channel < num_channels) {
-        if (!image->FillImageData(res, channel, channels_per_message)) {
+        if (!image->FillImageData(res, channel, channels_per_message, req->precision())) {
             return grpc::Status(grpc::StatusCode::INTERNAL, "Problem accessing image data");
         }
         writer->Write(res);

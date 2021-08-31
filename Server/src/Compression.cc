@@ -1,6 +1,6 @@
 #include "Compression.h"
 
-int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer, size_t& compressed_size, uint32_t width, uint32_t height, uint32_t depth, uint32_t precision) {
+int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer, size_t& compressed_size, int width, int height, int depth, int precision) {
     int status = 0;
     zfp_type type = zfp_type_float;
     zfp_field* field;
@@ -8,7 +8,7 @@ int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer
     size_t buffer_size;
     bitstream* stream;
 
-    field = zfp_field_2d((void*)srcArray, type, width, height);
+    field = zfp_field_3d((void*)srcArray, type, width, height, depth);
     zfp = zfp_stream_open(nullptr);
     zfp_stream_set_precision(zfp, precision);
 

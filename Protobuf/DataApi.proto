@@ -97,5 +97,7 @@ message DataResponse {
     bytes raw_data = 1;
     float min_value = 2;
     float max_value = 3;
+    int32 num_channels = 4;
+    int32 precision = 5;
 }
 

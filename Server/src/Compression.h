@@ -6,8 +6,10 @@
 #include <zfp.h>
 
 #define DEFAULT_COMPRESSION_PRECISION 12
+#define MIN_COMPRESSION_PRECISION 4
+#define MAX_COMPRESSION_PRECISION 31
 
-int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer, size_t& compressed_size, uint32_t width, uint32_t height, uint32_t depth,
-    uint32_t precision = DEFAULT_COMPRESSION_PRECISION);
+int CompressFloat3D(const float* srcArray, std::vector<char>& compression_buffer, size_t& compressed_size, int width, int height, int depth,
+    int precision = DEFAULT_COMPRESSION_PRECISION);
 
 #endif // IDIAVRSERVER_COMPRESSION_H

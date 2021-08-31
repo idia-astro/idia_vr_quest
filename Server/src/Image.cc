@@ -43,7 +43,7 @@ bool Image::DataLoaded() {
     return (num_voxels == _dimensions[0] * _dimensions[1] * _dimensions[2]);
 }
 
-bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels) {
+bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels, int precision) {
     if (!DataLoaded()) {
         return false;
     }
@@ -52,12 +52,14 @@ bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num
     num_channels = std::min(num_channels, _dimensions[2] - channelOffset);
     auto pixels_per_channel = (_dimensions[0] * _dimensions[1]);
     auto num_pixels = num_channels * pixels_per_channel;
+    precision = std::max(MIN_COMPRESSION_PRECISION, std::min(MAX_COMPRESSION_PRECISION, precision));
 
     float* src_array = _data_cube.data() + channelOffset * pixels_per_channel;
     std::vector<char> compressed_data;
     size_t compressed_size = 0;
 
-    auto compression_status = CompressFloat3D(src_array, compressed_data, compressed_size, _dimensions[0], _dimensions[1], num_channels);
+    auto compression_status = CompressFloat3D(src_array, compressed_data, compressed_size, _dimensions[0], _dimensions[1], num_channels, precision);
+    compressed_data.resize(compressed_size);
 
     if (!compression_status) {
         spdlog::debug("Compressed channels. Size: {} b => {} b", num_pixels * sizeof(float), compressed_size);
@@ -65,8 +67,10 @@ bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num
         spdlog::error("Error compressing data");
     }
 
-    //*res.mutable_raw_data() = {compressed_data.begin(), compressed_data.end()};
-    res.set_raw_data(_data_cube.data() + channelOffset * pixels_per_channel, num_pixels * sizeof(float));
+    res.set_num_channels(num_channels);
+    res.set_precision(precision);
+    *res.mutable_raw_data() = {compressed_data.begin(), compressed_data.end()};
+    //res.set_raw_data(_data_cube.data() + channelOffset * pixels_per_channel, num_pixels * sizeof(float));
     return true;
 }
 
