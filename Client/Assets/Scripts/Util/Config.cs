@@ -11,6 +11,8 @@ namespace Util
         public string folder = "";
         public string file = "test.fits";
         public int maxCubeSizeMb = 200;
+        public int slicesPerMessage = 4;
+        public int compressionPrecision = 12;
 
         private static Config _instance;
 

@@ -100,6 +100,11 @@ OVRAssetBundles/
 /Assets/Scripts/DataApi/
 /Assets/Scripts/DataApi.meta
 
+# C++ plugins
+/Assets/Plugins/*zfp*
+/Assets/Plugins/Android
+/Assets/Plugins/Android.meta
+/Assets/Plugins/nativeFunctions.*
 
 
 

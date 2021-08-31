@@ -13,18 +13,18 @@ service FileBrowser {
 }
 
 message FileListRequest {
-    string directoryName = 1;
+    string directory_name = 1;
 }
 
 message FileList {
-    string directoryName = 1;
-    repeated DirectoryInfo subDirectories = 2;
+    string directory_name = 1;
+    repeated DirectoryInfo sub_directories = 2;
     repeated FileInfo files = 3;
 }
 
 message DirectoryInfo {
     string name = 1;
-    int64  numItems = 2;
+    int64  num_items = 2;
     int64 date = 3;
 }
 
@@ -35,8 +35,8 @@ message FileInfo {
 }
 
 message ImageInfo {
-    string fileName = 1 ;
-    FileType fileType = 2;
+    string file_name = 1 ;
+    FileType file_type = 2;
     repeated int32 dimensions = 3;
 
     message HeaderEntry {
@@ -56,45 +56,48 @@ enum FileType {
 }
 
 message FileRequest {
-    string directoryName = 1;
-    string fileName = 2;
-    string hduName = 3;
-    int32 hduNum = 4;
+    string directory_name = 1;
+    string file_name = 2;
+    string hdu_name = 3;
+    int32 hdu_num = 4;
 }
 
 message OpenImageResponse {
-    int32 fileId = 1;
+    int32 file_id = 1;
 }
 
 message CloseFileRequest {
-    int32 fileId = 1;
+    int32 file_id = 1;
 }
 
 message GetDataRequest {
-    int32 fileId = 1;
+    int32 file_id = 1;
     // Region configuration for the image (Unused for now)
-    int32 xMin = 2;
-    int32 xMax = 3;
-    int32 yMin = 4;
-    int32 yMax = 5;
-    int32 zMin = 6;
-    int32 zMax = 7;
+    int32 x_min = 2;
+    int32 x_max = 3;
+    int32 y_min = 4;
+    int32 y_max = 5;
+    int32 z_min = 6;
+    int32 z_max = 7;
     // Down-sampling configuration (Unused for now)
-    int32 xyMip = 8;
-    int32 zMip = 9;
+    int32 xy_mip = 8;
+    int32 z_mip = 9;
 
     enum DownSamplingMode {
         Mean = 0;
         Max = 1;
         Extrema = 2;
     }
-    DownSamplingMode downSamplingMode = 10;
+    DownSamplingMode down_sampling_mode = 10;
+    int32 channels_per_message = 11;
+    int32 precision = 12;
 }
 
 message DataResponse {
-    bytes rawData = 1;
-    float minValue = 2;
-    float maxValue = 3;
-    // TODO: Compression
+    bytes raw_data = 1;
+    float min_value = 2;
+    float max_value = 3;
+    int32 num_channels = 4;
+    int32 precision = 5;
 }
 

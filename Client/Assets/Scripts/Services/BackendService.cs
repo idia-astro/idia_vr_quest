@@ -66,9 +66,9 @@ namespace Services
             await _fileBrowserClient.CloseImageAsync(new CloseFileRequest { FileId = fileId });
         }
 
-        public AsyncServerStreamingCall<DataResponse> GetData(int fileId)
+        public AsyncServerStreamingCall<DataResponse> GetData(int fileId, int precision, int channelsPerMessage = 4)
         {
-            return _fileBrowserClient.GetData(new GetDataRequest { FileId = fileId });
+            return _fileBrowserClient.GetData(new GetDataRequest { FileId = fileId, Precision = precision, ChannelsPerMessage = channelsPerMessage});
         }
     }
 }

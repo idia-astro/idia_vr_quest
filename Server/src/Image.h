@@ -45,7 +45,7 @@ public:
     const std::vector<HeaderEntry>& Header();
     const std::string& ErrorMessage();
     bool FillImageInfo(DataApi::ImageInfo* imageInfo);
-    bool FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels);
+    bool FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels, int precision);
     void GetMinMax(float& min_value, float& max_value);
     bool DataLoaded();
     void SetFileId(int id);

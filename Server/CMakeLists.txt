@@ -7,6 +7,7 @@ include_directories(${CMAKE_SOURCE_DIR}/third-party/include)
 
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(zfp CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 
 IF (WIN32)
@@ -33,6 +34,7 @@ add_executable(IdiaVrServer
         src/FileBrowserService.cc
         src/Main.cc
         src/Util.cc
+        src/Compression.cc
         src/Timer/Timer.cc
         )
 
@@ -41,6 +43,7 @@ target_link_libraries(IdiaVrServer
         protolib
         PUBLIC
         fmt::fmt
+        zfp::zfp
         cfitsio
         )
 

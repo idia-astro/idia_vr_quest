@@ -1,4 +1,7 @@
 #include "Image.h"
+#include <spdlog/spdlog.h>
+
+#include "Compression.h"
 
 const std::vector<int>& Image::Dimensions() {
     return _dimensions;
@@ -40,7 +43,7 @@ bool Image::DataLoaded() {
     return (num_voxels == _dimensions[0] * _dimensions[1] * _dimensions[2]);
 }
 
-bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels) {
+bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num_channels, int precision) {
     if (!DataLoaded()) {
         return false;
     }
@@ -49,8 +52,23 @@ bool Image::FillImageData(DataApi::DataResponse& res, int channelOffset, int num
     num_channels = std::min(num_channels, _dimensions[2] - channelOffset);
     auto pixels_per_channel = (_dimensions[0] * _dimensions[1]);
     auto num_pixels = num_channels * pixels_per_channel;
+    precision = std::max(MIN_COMPRESSION_PRECISION, std::min(MAX_COMPRESSION_PRECISION, precision));
 
-    res.set_rawdata(_data_cube.data() + channelOffset * pixels_per_channel, num_pixels * sizeof(float));
+    float* src_array = _data_cube.data() + channelOffset * pixels_per_channel;
+    std::vector<char> compressed_data;
+    size_t compressed_size = 0;
+
+    auto compression_error_status = CompressFloat3D(src_array, compressed_data, compressed_size, _dimensions[0], _dimensions[1], num_channels, precision);
+    compressed_data.resize(compressed_size);
+
+    if (compression_error_status) {
+        spdlog::error("Error compressing data");
+        return false;
+    }
+
+    res.set_num_channels(num_channels);
+    res.set_precision(precision);
+    *res.mutable_raw_data() = {compressed_data.begin(), compressed_data.end()};
     return true;
 }
 

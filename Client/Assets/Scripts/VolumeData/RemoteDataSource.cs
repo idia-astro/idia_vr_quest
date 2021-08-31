@@ -1,10 +1,15 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
 using Services;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using Util;
 using Debug = UnityEngine.Debug;
 
 namespace VolumeData
@@ -54,7 +59,7 @@ namespace VolumeData
             {
                 var backendService = BackendService.Instance;
                 var imageInfo = await backendService.GetImageInfo(folder, name);
-                if (imageInfo == null || imageInfo.Dimensions == null)
+                if (imageInfo?.Dimensions == null)
                 {
                     Debug.LogError($"Error loading file information for {name}");
                     return false;
@@ -65,13 +70,12 @@ namespace VolumeData
                     Debug.LogError($"Image file {name} has fewer than 3 dimensions");
                     return false;
                 }
-                
+
                 DataSourceDims = new Vector3Int(imageInfo.Dimensions[0], imageInfo.Dimensions[1], imageInfo.Dimensions[2]);
                 InitTextures();
-                
+
                 _fileId = await backendService.OpenFile(folder, name);
                 await StreamData(_fileId);
-
             }
             catch (RpcException ex)
             {
@@ -89,28 +93,32 @@ namespace VolumeData
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
+                var config = Config.Instance;
                 int totalSize = 0;
                 int slice = 0;
                 int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
 
-                var floatPixels = new float[pixelsPerSlice];
                 var scaledPixels = new byte[pixelsPerSlice];
                 var backendService = BackendService.Instance;
 
-                using (var call = backendService.GetData(fileId))
+                int numPoints = pixelsPerSlice * config.slicesPerMessage;
+
+                using var destArray = new NativeArray<float>(numPoints, Allocator.Persistent);
+                var call = backendService.GetData(fileId, config.compressionPrecision, config.slicesPerMessage);
+
+                while (await call.ResponseStream.MoveNext())
                 {
-                    while (await call.ResponseStream.MoveNext())
-                    {
-                        var dataResponse = call.ResponseStream.Current;
-                        FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
+                    var dataResponse = call.ResponseStream.Current;
+                    FloatDataBounds = new Vector2(dataResponse.MinValue, dataResponse.MaxValue);
 
-                        var dataSize = dataResponse.RawData.Length;
-                        totalSize += dataSize;
-
-                        var numProcessedSlices = UpdateTextures(dataResponse.RawData.ToByteArray(), floatPixels, scaledPixels, slice);
-                        slice += numProcessedSlices;
-                    }
+                    var dataSize = dataResponse.RawData.Length;
+                    totalSize += dataSize;
+                    var decompressedData = DecompressData(dataResponse.RawData.ToByteArray(), destArray, DataSourceDims.x, DataSourceDims.y, dataResponse.NumChannels,
+                        config.compressionPrecision);
+                    var numProcessedSlices = UpdateTextures(decompressedData, dataResponse.NumChannels, scaledPixels, slice);
+                    slice += numProcessedSlices;
                 }
+
 
                 sw.Stop();
 
@@ -124,50 +132,48 @@ namespace VolumeData
             }
         }
 
-        private int UpdateTextures(byte[] rawData, float[] floatPixels, byte[] scaledPixels, int startingSlice)
+        private static unsafe NativeArray<float> DecompressData(byte[] srcArray, NativeArray<float> destArray, int width, int height, int depth, int precision)
         {
-            int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
-            int bytesPerSlice = pixelsPerSlice * sizeof(float);
-            int slicesPerMessage = rawData.Length / bytesPerSlice;
-            for (int i = 0; i < slicesPerMessage; i++)
+            float* destPtr = (float*)destArray.GetUnsafePtr();
+            fixed (byte* srcPtr = srcArray)
             {
-                Buffer.BlockCopy(rawData, bytesPerSlice * i, floatPixels, 0, bytesPerSlice);
+                int compressedSize = srcArray.Length;
 
-                var minValue = FloatDataBounds.x;
-                var maxValue = FloatDataBounds.y;
-                var range = maxValue - minValue;
-
-                // Convert scaled array one-by-one
-                for (int j = 0; j < pixelsPerSlice; j++)
+                int errorCode = NativeFunctions.DecompressFloat3D(srcPtr, compressedSize, destPtr, width, height, depth, precision);
+                if (errorCode != 0)
                 {
-                    var val = floatPixels[j];
-                    // handle numerical errors for min and max values
-                    if (val == minValue)
-                    {
-                        val = 0;
-                    }
-                    else if (val == maxValue)
-                    {
-                        val = 255;
-                    }
-                    else
-                    {
-                        val = 255 * (val - minValue) / range;
-                    }
-
-                    scaledPixels[j] = (byte)Mathf.RoundToInt(val);
+                    Debug.LogError("Error decompressing ZFP stream");
                 }
-
-                _scaledSliceTexture.SetPixelData(scaledPixels, 0);
-                _floatSliceTexture.SetPixelData(floatPixels, 0);
-
-                _scaledSliceTexture.Apply();
-                _floatSliceTexture.Apply();
-                Graphics.CopyTexture(_floatSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, FloatDataTexture, startingSlice + i, 0, 0, 0);
-                Graphics.CopyTexture(_scaledSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, ScaledDataTexture, startingSlice + i, 0, 0, 0);
             }
 
-            return slicesPerMessage;
+            return destArray;
+        }
+
+        private unsafe int UpdateTextures(NativeArray<float> sourcePixels, int numSlices, byte[] scaledPixels, int startingSlice)
+        {
+            int pixelsPerSlice = DataSourceDims.x * DataSourceDims.y;
+            float* arrayPtr = (float*)sourcePixels.GetUnsafePtr();
+
+            fixed (byte* destPtr = scaledPixels)
+            {
+                for (int i = 0; i < numSlices; i++)
+                {
+                    var minValue = FloatDataBounds.x;
+                    var maxValue = FloatDataBounds.y;
+
+                    float* srcPtr = arrayPtr + pixelsPerSlice * i;
+                    NativeFunctions.ScaleArray(srcPtr, destPtr, pixelsPerSlice, minValue, maxValue, 0);
+                    _scaledSliceTexture.SetPixelData(scaledPixels, 0);
+                    _floatSliceTexture.SetPixelData(sourcePixels, 0, i * pixelsPerSlice);
+
+                    _scaledSliceTexture.Apply();
+                    _floatSliceTexture.Apply();
+                    Graphics.CopyTexture(_floatSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, FloatDataTexture, startingSlice + i, 0, 0, 0);
+                    Graphics.CopyTexture(_scaledSliceTexture, 0, 0, 0, 0, DataSourceDims.x, DataSourceDims.y, ScaledDataTexture, startingSlice + i, 0, 0, 0);
+                }
+            }
+
+            return numSlices;
         }
 
         private void InitTextures()
@@ -177,70 +183,28 @@ namespace VolumeData
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
             };
-            
+
             ScaledDataTexture = new Texture3D(DataSourceDims.x, DataSourceDims.y, DataSourceDims.z, TextureFormat.R8, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
             };
-                
+
             _floatSliceTexture = new Texture2D(DataSourceDims.x, DataSourceDims.y, TextureFormat.RFloat, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
             };
-            
+
             _scaledSliceTexture = new Texture2D(DataSourceDims.x, DataSourceDims.y, TextureFormat.R8, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
-            };  
-        }
-
-        private void UpdateTextures(float[] floatData)
-        {
-            var numPixels = floatData.Length;
-            var minValue = FloatDataBounds.x;
-            var maxValue = FloatDataBounds.y;
-            var range = maxValue - minValue;
-
-            var floatArray = FloatDataTexture.GetPixelData<float>(0);
-            var scaledArray = ScaledDataTexture.GetPixelData<byte>(0);
-
-            // Update all FP32 data in one go
-            FloatDataTexture.SetPixelData(floatData, 0);
-            
-            // Convert scaled array one-by-one
-            for (int i = 0; i < numPixels; i++)
-            {
-                var val = floatArray[i];
-                // handle numerical errors for min and max values (suppress intellisense warnings)
-                // ReSharper disable CompareOfFloatsByEqualityOperator
-                if (val == minValue)
-                {
-                    val = 0;
-                }
-                else if (val == maxValue)
-                {
-                    val = 255;
-                }
-                else
-                {
-                    val = 255 * (val - minValue) / range;
-                }
-                // ReSharper restore CompareOfFloatsByEqualityOperator
-
-
-                scaledArray[i] = (byte) Mathf.RoundToInt(val);
-            }
-
-            ScaledDataTexture.Apply();
-            FloatDataTexture.Apply();
+            };
         }
 
         public void Update()
         {
-            
         }
 
         public async Task<bool> RequestCrop(Vector3Int cropMin, Vector3Int cropMax)
