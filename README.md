@@ -11,6 +11,7 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 
 - C++17 compatible compiler (GCC 8+, clang 11, msvc 2017+). Tested on GCC 9.3 and msvc 2019.
 - [cmake](https://cmake.org/) 3.12 or newer.
+- `make` (Linux) or `nmake` (Windows) in your path.
 - pkg-config (`pkg-config` on Debian;  `pkgconf` in vcpkg).
 - Protocol buffer libraries and compilers (`libprotobuf-dev` and `protobuf-compiler` on Debian; `protobuf` in vcpkg).
 - gRPC and protocol buffer libraries and compilers (`libgrpc++-dev` and `protobuf-compiler-grpc` on Debian; `grpc` in
@@ -23,6 +24,8 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 
 ### Building
 
+**Note:** when using `cmake` with msvc and `nmake`, you must append the `-G "NMake Makefiles"` argument to each `cmake` call.
+
 - Checkout the repo and all submodules using `git submodule update --init --recursive`.
 - Create a build folder and `cd` into it.
 - Run `cmake <path_to_source_folder>`. On Windows platforms you may need to specify the vcpkg toolchain file
@@ -34,9 +37,26 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 The client is written in C#, and has only been tested on Windows (building for Android) with Unity 2021.1. The
 powershell script `CompileGrpcServiceWindows.ps1` needs to be run before running Unity.
 
-The client has a `NativeFunctions` C++ plugin that can be compiled using vcpkg (Windows) or the NDK (Android). Instructions to follow. 
+### Plugins
+The client has a `NativeFunctions` C++ plugin that can be compiled using vcpkg (Windows) or cross-compiled using the Android NDK (On Windows or Linux).
+The plugin needs to be built for both Windows (x64) and Android (arm64-v8a). The plugin depends on ZFP and OpenMP.
 
+#### Building for Windows
+Compilation for Windows should be similar to that of the server:
+- Run `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\<path_to_vcpkg_root_dir>\scripts\buildsystems\vcpkg.cmake <path_to_source_folder>`
+- Run `nmake install` to build the plugin and install to the correct `Plugins`  sub-folder, along with dependencies.
 
+#### Building for Android
+Compilation for Android requires the Android NDK. You must first compile ZFP using the Android NDK:
+- Clone the ZFP repo at branch `0.5.5` (`git clone https://github.com/LLNL/zfp.git -b 0.5.5`).
+- Create a build directory `zfp/build` and `cd` to it. 
+- Run `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path_to_ndk_root>/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=23 -DCMAKE_INSTALL_PREFIX=../install_ndk ..` 
+- Run `make install` to build and install to the `zfp/install_ndk` folder.
+
+Once this is done:
+- Run `cmake -DCMAKE_TOOLCHAIN_FILE=<path_to_ndk_root>/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=23 -Dzfp_DIR=<path_to_zfp_install_ndk>/lib/cmake/zfp`.
+- Run `make install` (or `nmake install` for msvc) to build the plugin and install to the correct `Plugins` sub-folder, along with dependencies.
+### Config
 A `config.json` file should be placed in the [persistent data path](https://docs.unity3d.com/2021.1/Documentation/ScriptReference/Application-persistentDataPath.html), in order to specify the server address and file/folder paths. An example config is shown below:
 
 ```json

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Util
@@ -33,17 +32,11 @@ namespace Util
                 return defaultConfig;
             }
 
-            var jsonSerializer = new JsonSerializer();
-            var sr = new StreamReader(filepath);
-            var result = jsonSerializer.Deserialize(sr, typeof(Config));
-
+            
+            using var sr = new StreamReader(filepath);
+            Config result = JsonUtility.FromJson<Config>(sr.ReadToEnd());
             // Return default config if the JSON file was incorrect
-            if (result == null)
-            {
-                return new Config();
-            }
-
-            return (Config)result;
+            return result ?? new Config();
         }
 
         public static Config Instance
@@ -62,16 +55,10 @@ namespace Util
                 filepath = DefaultPath;
             }
 
-            Debug.Log($"Config file written to {filepath}");
-            JsonSerializer serializer = new JsonSerializer
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented
-            };
-
+            var jsonString = JsonUtility.ToJson(this, true);
             using StreamWriter sw = new StreamWriter(filepath);
-            using JsonWriter writer = new JsonTextWriter(sw);
-            serializer.Serialize(writer, this);
+            sw.Write(jsonString);
+            Debug.Log($"Config file written to {filepath}");
         }
     }
 }
