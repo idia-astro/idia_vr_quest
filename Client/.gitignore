@@ -103,6 +103,7 @@ OVRAssetBundles/
 # C++ plugins
 /Assets/Plugins/x86_64*
 /Assets/Plugins/Android*
+/Assets/Plugins/Linux*
 
 
 

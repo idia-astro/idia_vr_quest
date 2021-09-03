@@ -34,8 +34,11 @@ The server is written in C++, and should work on most Linux distributions, or Wi
 
 ## Client
 
-The client is written in C#, and has only been tested on Windows (building for Android) with Unity 2021.1. The
-powershell script `CompileGrpcServiceWindows.ps1` needs to be run before running Unity.
+The client is written in C#, and has only been tested on Windows (building for Android) with Unity 2021.1. 
+- [Oculus integration package](https://developer.oculus.com/documentation/unity/unity-import/) needs to be imported.
+- The grpc Unity plugin (`grpc_unity_package.2.41.0-dev202109021012.zip` from [here](https://packages.grpc.io/archive/2021/09/7911beacdb6175429828ee5c66eb4f7a86e848e4-358c5903-b1c5-42c0-ba79-f7ef12b4ea63/index.xml)) needs to be downloaded and unzipped to the `Assets/Plugins` directory.
+- Run `CompileGrpcService.sh` (Linux) or `CompileGrpcServiceWindows.ps1` (Windows) before running Unity.
+
 
 ### Plugins
 The client has a `NativeFunctions` C++ plugin that can be compiled using vcpkg (Windows) or cross-compiled using the Android NDK (On Windows or Linux).
