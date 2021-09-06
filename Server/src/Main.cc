@@ -2,7 +2,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include <spdlog/spdlog.h>
-#include <cxxopts/cxxopts.hpp>
+#include <cxxopts.hpp>
 
 #include "FileBrowserService.h"
 
