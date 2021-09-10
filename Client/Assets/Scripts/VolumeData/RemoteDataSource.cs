@@ -14,26 +14,8 @@ using Debug = UnityEngine.Debug;
 
 namespace VolumeData
 {
-    public class RemoteDataSource : IVolumeDataSource
+    public class RemoteDataSource : VolumeDataSource
     {
-        public bool IsValid { get; private set; }
-        public Texture3D ScaledDataTexture { get; private set; }
-        public Vector3Int ScaledDataDownsamplingFactors { get; }
-        public int ScaledDataLimit { get; set; }
-        public Texture3D FloatDataTexture { get; private set; }
-
-        public Vector3Int FloatDataDownsamplingFactors { get; }
-        public int FloatDataLimit { get; set; }
-        public Vector2 FloatDataBounds { get; private set; }
-        public DataState DataState { get; private set; }
-        public float Progress { get; private set; }
-        public Vector3Int DataSourceDims { get; private set; }
-        public Vector3Int CropMin { get; }
-        public Vector3Int CropMax { get; }
-
-        public Vector3Int ScaledDataDims => new Vector3Int(ScaledDataTexture?.width ?? 0, ScaledDataTexture?.height ?? 0, ScaledDataTexture?.depth ?? 0);
-        public Vector3Int FloatDataDims => new Vector3Int(FloatDataTexture?.width ?? 0, FloatDataTexture?.height ?? 0, FloatDataTexture?.depth ?? 0);
-
         private int _fileId;
         private bool _requiresUpload;
         private int _channel;
@@ -71,10 +53,17 @@ namespace VolumeData
                     return false;
                 }
 
-                DataSourceDims = new Vector3Int(imageInfo.Dimensions[0], imageInfo.Dimensions[1], imageInfo.Dimensions[2]);
-                InitTextures();
-
                 _fileId = await backendService.OpenFile(folder, name);
+
+                var imageDims = new Vector3Int(imageInfo.Dimensions[0], imageInfo.Dimensions[1], imageInfo.Dimensions[2]);
+                FindDownsamplingFactors(Config.Instance.maxCubeSizeMb, imageDims.x, imageDims.y, imageDims.z, out int xyFactor, out int zFactor);
+                var downsampledDims = Vector3Int.CeilToInt(new Vector3((float)imageDims.x / xyFactor, (float)imageDims.y / xyFactor, (float)imageDims.z / zFactor));
+                Debug.Log(
+                    $"Downsampling cube from {imageDims.x}x{imageDims.y}x{imageDims.z} to {downsampledDims.x}x{downsampledDims.y}x{downsampledDims.z} (xy: {xyFactor}, z: {zFactor})");
+                var imageSizeMb = 1.0e-6 * imageDims.x * imageDims.y * imageDims.z * sizeof(float);
+                var downsampledSizeMb = 1.0e-6 * downsampledDims.x * downsampledDims.y * downsampledDims.z * sizeof(float);
+                Debug.Log($"Cube size decreased from {imageSizeMb:F1} MB to {downsampledSizeMb:F1} MB (limit={Config.Instance.maxCubeSizeMb} MB)");
+                InitTextures(new Vector3Int(imageInfo.Dimensions[0], imageInfo.Dimensions[1], imageInfo.Dimensions[2]));
                 await StreamData(_fileId);
             }
             catch (RpcException ex)
@@ -85,6 +74,7 @@ namespace VolumeData
 
             return true;
         }
+
 
         private async Task StreamData(int fileId)
         {
@@ -104,7 +94,7 @@ namespace VolumeData
                 int numPoints = pixelsPerSlice * config.slicesPerMessage;
 
                 using var destArray = new NativeArray<float>(numPoints, Allocator.Persistent);
-                var call = backendService.GetData(fileId, config.compressionPrecision, config.slicesPerMessage);
+                using var call = backendService.GetData(fileId, config.compressionPrecision, config.slicesPerMessage);
 
                 while (await call.ResponseStream.MoveNext())
                 {
@@ -176,8 +166,9 @@ namespace VolumeData
             return numSlices;
         }
 
-        private void InitTextures()
+        private void InitTextures(Vector3Int newDims)
         {
+            DataSourceDims = newDims;
             FloatDataTexture = new Texture3D(DataSourceDims.x, DataSourceDims.y, DataSourceDims.z, TextureFormat.RFloat, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
@@ -203,17 +194,17 @@ namespace VolumeData
             };
         }
 
-        public void Update()
+        public override void Update()
         {
         }
 
-        public async Task<bool> RequestCrop(Vector3Int cropMin, Vector3Int cropMax)
+        public override async Task<bool> RequestCrop(Vector3Int cropMin, Vector3Int cropMax)
         {
             await Task.Delay(10);
             return false;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (_fileId >= 0)
             {
