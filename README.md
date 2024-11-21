@@ -1,7 +1,11 @@
 # IDIA Oculus Quest Software
 
 Exploratory project for viewing remote image cubes on the Oculus Quest 2. The software uses a client-server approach,
-with [gRPC](https://grpc.io/) used for communication.
+with [gRPC](https://grpc.io/) used for communication. Data is compressed on the backend and streamed to the client. The client includes dynamic step sizes to keep the framerate at the target.
+
+
+https://github.com/user-attachments/assets/eba938dc-4e41-4316-ae67-9eafbb0ca896
+
 
 ## Server
 
